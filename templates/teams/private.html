@@ -1,0 +1,1406 @@
+{% extends "base.html" %}
+
+{% block stylesheets %}
+  {{ super() }}
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+
+<div id="team-edit-modal" class="modal fade">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content custom-modal">
+      <div class="modal-header">
+        <h2 class="modal-action text-center w-100">{% trans %}Edit Team{% endtrans %}</h2>
+        <button type="button" class="cursor-pointer btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+
+      <div class="modal-body clearfix" x-data="TeamEditModal">
+        {% with form = Forms.teams.TeamSettingsForm(obj=team) %}
+          {% from "macros/forms.html" import render_extra_fields %}
+          <form id="team-info-form" method="POST" @submit.prevent="updateProfile()">
+
+            <div class="form-field">
+              <label>{{ form.name.label.text }}</label>
+              {{ form.name(class="form-input") }}
+              <small>{{ form.name.description }}</small>
+            </div>
+
+            <div class="form-field">
+              <label>{{ form.password.label.text }}</label>
+              {{ form.password(class="form-input") }}
+              <small>{{ form.password.description }}</small>
+            </div>
+
+            <div class="form-field">
+              <label>{{ form.confirm.label.text }}</label>
+              {{ form.confirm(class="form-input") }}
+              <small>{{ form.confirm.description }}</small>
+            </div>
+
+            <div class="form-field">
+              <label>{{ form.website.label.text }}</label>
+              {{ form.website(class="form-input") }}
+              <small>{{ form.website.description }}</small>
+            </div>
+
+            <div class="form-field">
+              <label>{{ form.affiliation.label.text }}</label>
+              {{ form.affiliation(class="form-input") }}
+              <small>{{ form.affiliation.description }}</small>
+            </div>
+
+            <div class="form-field">
+              <label>{{ form.country.label.text }}</label>
+              {{ form.country(class="form-select") }}
+              <small>{{ form.country.description }}</small>
+            </div>
+
+            <hr style="border-color: rgba(255,255,255,0.1); margin: 24px 0;">
+
+            {{ render_extra_fields(form.extra) }}
+
+            <div id="results">
+              <div class="alert alert-success alert-dismissible submit-row" role="alert" x-cloak="success" x-show="success">
+                <strong>Success!</strong>
+                {% trans %}Your team's profile has been updated{% endtrans %}
+                <button type="button" class="cursor-pointer btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+              </div>
+
+              <template x-for="(msg, idx) in errors" :key="idx">
+                <div class="alert alert-danger alert-dismissible" role="alert">
+                  <span class="sr-only">{% trans %}Error:{% endtrans %}</span>
+                  <span x-text="msg"></span>
+                  <button type="button" class="cursor-pointer btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+              </template>
+            </div>
+
+            <button type="submit" class="modal-submit-btn">
+              <i class="fas fa-save"></i>
+              {% trans %}Update{% endtrans %}
+            </button>
+          </form>
+        {% endwith %}
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<div id="team-captain-modal" x-data="TeamCaptainModal" class="modal fade">
+  <div class="modal-dialog">
+    <div class="modal-content custom-modal">
+      <div class="modal-header">
+        <h2 class="modal-action text-center w-100">{% trans %}Choose Captain{% endtrans %}</h2>
+        <button type="button" class="cursor-pointer btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body clearfix">
+        {% with form = Forms.teams.TeamCaptainForm(captain_id=team.captain_id) %}
+          <form id="team-captain-form" method="POST" @submit.prevent="updateCaptain()">
+            <div class="form-field">
+              <label>{{ form.captain_id.label.text }}</label>
+              {% for member in team.members %}
+                {% set _ = form.captain_id.choices.append((member.id, member.name)) %}
+              {% endfor %}
+              {{ form.captain_id(class="form-select") }}
+            </div>
+            <div id="results">
+              <div class="alert alert-success alert-dismissible submit-row" role="alert" x-cloak="success" x-show="success">
+                <strong>Success!</strong>
+                {% trans %}Your captain rights have been transferred{% endtrans %}
+                <button type="button" class="cursor-pointer btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+              </div>
+              <template x-for="(msg, idx) in errors" :key="idx">
+                <div class="alert alert-danger alert-dismissible" role="alert">
+                  <span class="sr-only">Error:</span>
+                  <span x-text="msg"></span>
+                  <button type="button" class="cursor-pointer btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+              </template>
+            </div>
+            <button type="submit" class="modal-submit-btn">
+              <i class="fas fa-crown"></i>
+              {% trans %}Transfer{% endtrans %}
+            </button>
+          </form>
+        {% endwith %}
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<div id="team-invite-modal" x-data="TeamInviteModal" class="modal fade">
+  <div class="modal-dialog">
+    <div class="modal-content custom-modal">
+      <div class="modal-header">
+        <h2 class="modal-action text-center w-100">{% trans %}Invite Users{% endtrans %}</h2>
+        <button type="button" class="cursor-pointer btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body clearfix">
+        {% with form = Forms.teams.TeamInviteForm() %}
+          <form method="POST">
+            <div class="form-field">
+              <label>{{ form.link.label.text }}</label>
+              <div class="invite-input-wrapper">
+                {{ form.link(id="team-invite-link", class="form-input", **{"x-ref": "link", "x-bind:value": "$store.inviteToken"}) }}
+                <button class="copy-btn" type="button" @click="copy()">
+                  <i class="fas fa-copy"></i>
+                </button>
+              </div>
+              <small>{% trans %}Share this link with your team members for them to join your team{% endtrans %}</small>
+              <small>{% trans %}Invite links can be re-used and expire after 1 day{% endtrans %}</small>
+            </div>
+          </form>
+        {% endwith %}
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<div id="team-disband-modal" x-data="TeamDisbandModal" class="modal fade">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content custom-modal">
+      <div class="modal-header">
+        <h2 class="modal-action text-center w-100">{% trans %}Disband Team{% endtrans %}</h2>
+        <button type="button" class="cursor-pointer btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="disband-warning">
+          <i class="fas fa-exclamation-triangle"></i>
+          <p>{% trans %}Are you sure you want to disband your team?{% endtrans %}</p>
+          <p class="warning-sub">This action cannot be undone.</p>
+        </div>
+
+        <div class="mt-3">
+          <template x-for="(msg, idx) in errors" :key="idx">
+            <div class="alert alert-danger" role="alert">
+              <span class="sr-only">{% trans %}Error:{% endtrans %}</span>
+              <span x-text="msg"></span>
+            </div>
+          </template>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="modal-cancel-btn" data-bs-dismiss="modal">{% trans %}Cancel{% endtrans %}</button>
+        <button type="button" class="modal-danger-btn" @click="disbandTeam()" :disabled="errors.length > 0">
+          <i class="fas fa-trash-alt"></i>
+          {% trans %}Disband{% endtrans %}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="profile-page team-profile">
+  
+  <div class="profile-header">
+    <div class="container">
+      <div class="profile-main">
+        <div class="profile-avatar team-avatar" x-data="{ 
+          gravatarUrl: 'https://www.gravatar.com/avatar/' + md5('{{ team.captain.email | lower | trim }}') + '?s=200&d=identicon',
+          hasError: false
+        }">
+          <img 
+            :src="gravatarUrl" 
+            alt="{{ team.name }}"
+            @error="hasError = true"
+            x-show="!hasError"
+            class="avatar-img"
+          >
+          <i class="fas fa-users" x-show="hasError" x-cloak></i>
+        </div>
+        
+        <div class="profile-info">
+          <div class="profile-name-row">
+            <h1 id="team-id" team-id="{{ team.id }}">{{ team.name }}</h1>
+            {% if team.oauth_id %}
+              <a href="https://majorleaguecyber.org/t/{{ team.name }}" class="badge-official">
+                <i class="fas fa-check-circle"></i>
+                {% trans %}Official{% endtrans %}
+              </a>
+            {% endif %}
+            <span class="badge-private">
+              <i class="fas fa-lock"></i>
+              {% trans %}Your Team{% endtrans %}
+            </span>
+          </div>
+          
+          <div class="profile-badges">
+            {% if team.affiliation %}
+              <span class="profile-badge">
+                <i class="fas fa-building"></i>
+                {{ team.affiliation }}
+              </span>
+            {% endif %}
+            
+            {% if team.country %}
+              <span class="profile-badge">
+                <i class="flag-{{ team.country.lower() }}"></i>
+                {{ lookup_country_code(team.country) }}
+              </span>
+            {% endif %}
+            
+            {% if team.website and (team.website.startswith('http://') or team.website.startswith('https://')) %}
+              <a href="{{ team.website }}" target="_blank" rel="noopener" class="profile-badge profile-badge-link">
+                <i class="fas fa-globe"></i>
+                Website
+              </a>
+            {% endif %}
+          </div>
+          
+          {% for field in team.fields %}
+            <div class="profile-field">
+              <strong>{{ field.name }}:</strong> {{ field.value }}
+            </div>
+          {% endfor %}
+          
+          
+          <div class="captain-actions" x-data="CaptainMenu">
+            <button class="action-btn" @click="editTeam()" title="Edit Team">
+              <i class="fas fa-cogs"></i>
+            </button>
+            <button class="action-btn" @click="chooseCaptain()" title="Choose Captain">
+              <i class="fas fa-crown"></i>
+            </button>
+            <button class="action-btn action-success" @click="inviteMembers()" title="Invite Users">
+              <i class="fas fa-user-plus"></i>
+            </button>
+            <button class="action-btn action-danger" @click="disbandTeam()" title="Disband Team">
+              <i class="fas fa-trash-alt"></i>
+            </button>
+          </div>
+        </div>
+        
+        
+        <div class="profile-stats">
+          {% if scores_visible() and place %}
+            <div class="stat-card">
+              <div class="stat-icon">
+                <i class="fas fa-trophy"></i>
+              </div>
+              <div class="stat-info">
+                <div class="stat-value" id="team-place">{{ place }}</div>
+                <div class="stat-label">{% trans %}Place{% endtrans %}</div>
+              </div>
+            </div>
+          {% endif %}
+          
+          {% if score is not none %}
+            <div class="stat-card stat-primary">
+              <div class="stat-icon">
+                <i class="fas fa-star"></i>
+              </div>
+              <div class="stat-info">
+                <div class="stat-value" id="team-score">{{ score }}</div>
+                <div class="stat-label">{% trans %}Points{% endtrans %}</div>
+              </div>
+            </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="container">
+    {% include "components/errors.html" %}
+
+    
+    <div class="section-block">
+      <div class="section-header">
+        <i class="fas fa-user-friends"></i>
+        <h2>{% trans %}Members{% endtrans %}</h2>
+        <span class="section-count">{{ team.members|length }}</span>
+      </div>
+      
+      <div class="members-grid">
+        {% for member in team.members %}
+          <a href="{{ url_for('users.public', user_id=member.id) }}" class="member-card" x-data="{ hasError: false }">
+            <div class="member-avatar">
+              <img 
+                :src="'https://www.gravatar.com/avatar/' + md5('{{ member.email | lower | trim }}') + '?s=88&d=identicon'"
+                alt="{{ member.name }}"
+                @error="hasError = true"
+                x-show="!hasError"
+                class="avatar-img"
+              >
+              <i class="fas fa-user" x-show="hasError" x-cloak></i>
+            </div>
+            <div class="member-info">
+              <div class="member-name">
+                {{ member.name }}
+                {% if team.captain_id == member.id %}
+                  <span class="captain-badge">
+                    <i class="fas fa-crown"></i>
+                    Captain
+                  </span>
+                {% endif %}
+              </div>
+              <div class="member-score">{{ member.score }} pts</div>
+            </div>
+          </a>
+        {% endfor %}
+      </div>
+    </div>
+    
+    {% if solves or awards %}
+      
+      {% if awards %}
+        <div class="section-block">
+          <div class="section-header">
+            <i class="fas fa-award"></i>
+            <h2>{% trans %}Awards{% endtrans %}</h2>
+            <span class="section-count">{{ awards|length }}</span>
+          </div>
+          
+          <div class="awards-grid">
+            {% for award in awards %}
+              <div class="award-card">
+                <div class="award-icon-wrapper">
+                  <i class="award-icon award-{{ award.icon }}"></i>
+                </div>
+                <div class="award-info">
+                  <div class="award-name">{{ award.name }}</div>
+                  {% if award.category %}
+                    <div class="award-category">{{ award.category }}</div>
+                  {% endif %}
+                  {% if award.description %}
+                    <div class="award-desc">{{ award.description }}</div>
+                  {% endif %}
+                  <div class="award-value">+{{ award.value }} pts</div>
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+        </div>
+      {% endif %}
+
+      
+      <div class="section-block">
+        <div class="section-header">
+          <i class="fas fa-flag"></i>
+          <h2>{% trans %}Solves{% endtrans %}</h2>
+          <span class="section-count">{{ solves|length }}</span>
+        </div>
+        
+        <div class="solves-table-wrapper">
+          <table class="solves-table">
+            <thead>
+              <tr>
+                <th>{% trans %}Challenge{% endtrans %}</th>
+                <th class="d-none d-md-table-cell">{% trans %}Category{% endtrans %}</th>
+                <th>{% trans %}Value{% endtrans %}</th>
+                <th>{% trans %}Time{% endtrans %}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for solve in solves %}
+                <tr>
+                  <td>
+                    <a href="{{ url_for('challenges.listing') }}#{{ solve.challenge.name }}-{{ solve.challenge.id }}" class="challenge-link">
+                      {{ solve.challenge.name }}
+                    </a>
+                  </td>
+                  <td class="d-none d-md-table-cell">
+                    <span class="category-tag">{{ solve.challenge.category }}</span>
+                  </td>
+                  <td>
+                    <span class="points-value">{{ solve.challenge.value }}</span>
+                  </td>
+                  <td class="solve-time">
+                    <span data-time="{{ solve.date | isoformat }}">{{ solve.date }}</span>
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      
+      <div class="section-block" x-data="TeamGraphs">
+        <div class="section-header">
+          <i class="fas fa-chart-line"></i>
+          <h2>{% trans %}Statistics{% endtrans %}</h2>
+        </div>
+        
+        <div class="stats-grid">
+          
+          <div class="progress-card d-none d-md-block">
+            <h4>{% trans %}Solve Rate{% endtrans %}</h4>
+            <div class="custom-progress">
+              <div class="progress-bar-success" role="progressbar" :style="{ width: `${getSolvePercentage()}%` }"></div>
+              <div class="progress-bar-fail" role="progressbar" :style="{ width: `${getFailPercentage()}%` }"></div>
+            </div>
+            <div class="progress-legend">
+              <div class="legend-item">
+                <span class="legend-dot success"></span>
+                <span x-text="`Solves (${getSolvePercentage()}%)`"></span>
+              </div>
+              <div class="legend-item">
+                <span class="legend-dot fail"></span>
+                <span x-text="`Fails (${getFailPercentage()}%)`"></span>
+              </div>
+            </div>
+          </div>
+          
+          
+          <div class="progress-card d-none d-md-block">
+            <h4>{% trans %}Categories{% endtrans %}</h4>
+            <div class="custom-progress">
+              <template x-for="category in getCategoryBreakdown()" :key="category.name">
+                <div class="progress-bar-category" role="progressbar" :style="{ width: `${category.percent}%`, backgroundColor: category.color }"></div>
+              </template>
+            </div>
+            <div class="progress-legend category-legend">
+              <template x-for="category in getCategoryBreakdown()" :key="category.name">
+                <div class="legend-item">
+                  <span class="legend-dot" :style="{ backgroundColor: category.color }"></span>
+                  <span x-text="`${category.name} (${category.percent}%)`"></span>
+                </div>
+              </template>
+            </div>
+          </div>
+        </div>
+        
+        
+        <div class="graph-card d-none d-md-block">
+          <h4>{% trans %}Score Over Time{% endtrans %}</h4>
+          <div id="score-graph" x-ref="scoregraph" class="score-graph">
+            <div class="graph-loading">
+              <i class="fas fa-circle-notch fa-spin fa-2x"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    {% else %}
+      
+      <div class="empty-state">
+        <div class="empty-icon">
+          <i class="fas fa-flag"></i>
+        </div>
+        <h3>{% trans %}No solves yet{% endtrans %}</h3>
+        <p>{% trans %}Start solving challenges to see your team's progress here!{% endtrans %}</p>
+        <a href="{{ url_for('challenges.listing') }}" class="empty-cta">
+          <i class="fas fa-terminal"></i>
+          {% trans %}View Challenges{% endtrans %}
+        </a>
+      </div>
+    {% endif %}
+  </div>
+</div>
+
+<style>
+/* ========================================
+   Team Private Profile - Modern Design
+   ======================================== */
+
+.profile-page.team-profile {
+  min-height: calc(100vh - 150px);
+  padding-bottom: 60px;
+}
+
+/* Custom Modal Styles */
+.custom-modal {
+  background: #161b22;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+}
+
+.custom-modal .modal-header {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  padding: 20px 24px;
+}
+
+.custom-modal .modal-header h2 {
+  font-family: 'Inter', sans-serif;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #fff;
+  margin: 0;
+}
+
+.custom-modal .modal-body {
+  padding: 24px;
+}
+
+.custom-modal .modal-footer {
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  padding: 16px 24px;
+}
+
+.form-field {
+  margin-bottom: 20px;
+}
+
+.form-field label {
+  display: block;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #c9d1d9;
+  margin-bottom: 8px;
+}
+
+.form-field small {
+  display: block;
+  font-size: 0.8rem;
+  color: #8892a0;
+  margin-top: 6px;
+}
+
+.form-input {
+  width: 100%;
+  padding: 12px 16px;
+  background: #0d1117;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.95rem;
+  color: #e8e8e8;
+  transition: all 0.3s ease;
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: #6366f1;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+.form-select {
+  width: 100%;
+  padding: 12px 16px;
+  background: #0d1117;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.95rem;
+  color: #e8e8e8;
+  cursor: pointer;
+}
+
+.form-select:focus {
+  outline: none;
+  border-color: #6366f1;
+}
+
+.invite-input-wrapper {
+  display: flex;
+  gap: 8px;
+}
+
+.invite-input-wrapper .form-input {
+  flex: 1;
+}
+
+.copy-btn {
+  padding: 12px 16px;
+  background: rgba(99, 102, 241, 0.15);
+  border: 1px solid rgba(99, 102, 241, 0.3);
+  border-radius: 8px;
+  color: #818cf8;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.copy-btn:hover {
+  background: rgba(99, 102, 241, 0.25);
+}
+
+.modal-submit-btn {
+  width: 100%;
+  padding: 14px 24px;
+  background: #6366f1;
+  border: none;
+  border-radius: 8px;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #fff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all 0.2s ease;
+  margin-top: 20px;
+}
+
+.modal-submit-btn:hover {
+  background: #4f46e5;
+}
+
+.modal-cancel-btn {
+  padding: 12px 24px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.9rem;
+  color: #c9d1d9;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.modal-cancel-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.modal-danger-btn {
+  padding: 12px 24px;
+  background: #ef4444;
+  border: none;
+  border-radius: 8px;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #fff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.2s ease;
+}
+
+.modal-danger-btn:hover {
+  background: #dc2626;
+}
+
+.modal-danger-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.disband-warning {
+  text-align: center;
+  padding: 20px;
+}
+
+.disband-warning i {
+  font-size: 3rem;
+  color: #ef4444;
+  margin-bottom: 16px;
+}
+
+.disband-warning p {
+  font-size: 1rem;
+  color: #c9d1d9;
+  margin: 0;
+}
+
+.disband-warning .warning-sub {
+  font-size: 0.85rem;
+  color: #8892a0;
+  margin-top: 8px;
+}
+
+/* Profile Header */
+.profile-header {
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.08) 0%, rgba(99, 102, 241, 0.02) 100%);
+  border-bottom: 1px solid rgba(99, 102, 241, 0.1);
+  padding: 50px 0;
+  margin-bottom: 40px;
+}
+
+.profile-main {
+  display: flex;
+  align-items: flex-start;
+  gap: 30px;
+  flex-wrap: wrap;
+}
+
+.profile-avatar {
+  width: 100px;
+  height: 100px;
+  background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 40px;
+  color: #fff;
+  box-shadow: 0 8px 24px rgba(99, 102, 241, 0.3);
+  flex-shrink: 0;
+  overflow: hidden;
+}
+
+.profile-avatar .avatar-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.profile-info {
+  flex: 1;
+  min-width: 250px;
+}
+
+.profile-name-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+
+.profile-name-row h1 {
+  font-family: 'Inter', sans-serif;
+  font-size: 2rem;
+  font-weight: 700;
+  color: #fff;
+  margin: 0;
+}
+
+.badge-official {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  background: rgba(32, 201, 151, 0.15);
+  border: 1px solid rgba(32, 201, 151, 0.3);
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #20c997;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.badge-official:hover {
+  background: rgba(32, 201, 151, 0.25);
+  color: #20c997;
+}
+
+.badge-private {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  background: rgba(99, 102, 241, 0.15);
+  border: 1px solid rgba(99, 102, 241, 0.3);
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #818cf8;
+}
+
+.profile-badges {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+
+.profile-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  font-size: 0.85rem;
+  color: #c9d1d9;
+}
+
+.profile-badge-link {
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.profile-badge-link:hover {
+  background: rgba(99, 102, 241, 0.1);
+  border-color: rgba(99, 102, 241, 0.3);
+  color: #818cf8;
+}
+
+.profile-field {
+  font-size: 0.9rem;
+  color: #8892a0;
+  margin-top: 8px;
+}
+
+/* Captain Actions */
+.captain-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.action-btn {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  color: #8892a0;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.action-btn:hover {
+  background: rgba(99, 102, 241, 0.15);
+  border-color: rgba(99, 102, 241, 0.3);
+  color: #818cf8;
+}
+
+.action-btn.action-success:hover {
+  background: rgba(32, 201, 151, 0.15);
+  border-color: rgba(32, 201, 151, 0.3);
+  color: #20c997;
+}
+
+.action-btn.action-danger:hover {
+  background: rgba(239, 68, 68, 0.15);
+  border-color: rgba(239, 68, 68, 0.3);
+  color: #ef4444;
+}
+
+/* Stats Cards */
+.profile-stats {
+  display: flex;
+  gap: 16px;
+  margin-left: auto;
+}
+
+.stat-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 20px 24px;
+  background: #161b22;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 12px;
+  min-width: 140px;
+}
+
+.stat-card.stat-primary {
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(99, 102, 241, 0.05) 100%);
+  border-color: rgba(99, 102, 241, 0.2);
+}
+
+.stat-icon {
+  width: 48px;
+  height: 48px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  color: #8892a0;
+}
+
+.stat-card.stat-primary .stat-icon {
+  background: rgba(99, 102, 241, 0.15);
+  color: #818cf8;
+}
+
+.stat-value {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #fff;
+}
+
+.stat-label {
+  font-size: 0.8rem;
+  color: #8892a0;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Section Blocks */
+.section-block {
+  background: #161b22;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 16px;
+  padding: 28px;
+  margin-bottom: 24px;
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.section-header i {
+  font-size: 1.2rem;
+  color: #6366f1;
+}
+
+.section-header h2 {
+  font-family: 'Inter', sans-serif;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #fff;
+  margin: 0;
+}
+
+.section-count {
+  margin-left: auto;
+  padding: 4px 12px;
+  background: rgba(99, 102, 241, 0.15);
+  border-radius: 20px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #818cf8;
+}
+
+/* Members Grid */
+.members-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 16px;
+}
+
+.member-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 10px;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.member-card:hover {
+  border-color: rgba(99, 102, 241, 0.3);
+  background: rgba(99, 102, 241, 0.05);
+}
+
+.member-avatar {
+  width: 44px;
+  height: 44px;
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.2) 0%, rgba(99, 102, 241, 0.1) 100%);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #818cf8;
+  font-size: 1rem;
+  flex-shrink: 0;
+  overflow: hidden;
+}
+
+.member-avatar .avatar-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.member-name {
+  font-weight: 600;
+  color: #fff;
+  margin-bottom: 2px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.captain-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  background: rgba(251, 191, 36, 0.15);
+  border: 1px solid rgba(251, 191, 36, 0.3);
+  border-radius: 4px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: #fbbf24;
+}
+
+.member-score {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.8rem;
+  color: #20c997;
+}
+
+/* Awards Grid */
+.awards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 16px;
+}
+
+.award-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  padding: 16px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 10px;
+  transition: all 0.2s ease;
+}
+
+.award-card:hover {
+  border-color: rgba(99, 102, 241, 0.2);
+}
+
+.award-icon-wrapper {
+  width: 48px;
+  height: 48px;
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.15) 0%, rgba(99, 102, 241, 0.05) 100%);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.award-icon-wrapper .award-icon {
+  font-size: 1.3rem;
+  color: #818cf8;
+}
+
+.award-name {
+  font-weight: 600;
+  color: #fff;
+  margin-bottom: 4px;
+}
+
+.award-category {
+  font-size: 0.8rem;
+  color: #8892a0;
+}
+
+.award-desc {
+  font-size: 0.8rem;
+  color: #6b7280;
+  margin-top: 4px;
+}
+
+.award-value {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #20c997;
+  margin-top: 8px;
+}
+
+/* Solves Table */
+.solves-table-wrapper {
+  overflow-x: auto;
+}
+
+.solves-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.solves-table th {
+  text-align: left;
+  padding: 12px 16px;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #8892a0;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.solves-table td {
+  padding: 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.solves-table tr:last-child td {
+  border-bottom: none;
+}
+
+.solves-table tr:hover {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.challenge-link {
+  font-weight: 500;
+  color: #fff;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.challenge-link:hover {
+  color: #818cf8;
+}
+
+.category-tag {
+  display: inline-block;
+  padding: 4px 10px;
+  background: rgba(99, 102, 241, 0.15);
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: #818cf8;
+}
+
+.points-value {
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 600;
+  color: #20c997;
+}
+
+.solve-time {
+  font-size: 0.85rem;
+  color: #8892a0;
+}
+
+/* Stats Grid */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 20px;
+  margin-bottom: 24px;
+}
+
+.progress-card {
+  padding: 20px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 12px;
+}
+
+.progress-card h4 {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #c9d1d9;
+  margin: 0 0 16px 0;
+}
+
+.custom-progress {
+  height: 8px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 4px;
+  overflow: hidden;
+  display: flex;
+}
+
+.progress-bar-success {
+  background: #20c997;
+  height: 100%;
+  transition: width 0.5s ease;
+}
+
+.progress-bar-fail {
+  background: #ef4444;
+  height: 100%;
+  transition: width 0.5s ease;
+}
+
+.progress-bar-category {
+  height: 100%;
+  transition: width 0.5s ease;
+}
+
+.progress-legend {
+  display: flex;
+  gap: 20px;
+  margin-top: 12px;
+  flex-wrap: wrap;
+}
+
+.category-legend {
+  gap: 12px;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.8rem;
+  color: #8892a0;
+}
+
+.legend-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+.legend-dot.success {
+  background: #20c997;
+}
+
+.legend-dot.fail {
+  background: #ef4444;
+}
+
+/* Graph Card */
+.graph-card {
+  padding: 20px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 12px;
+}
+
+.graph-card h4 {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #c9d1d9;
+  margin: 0 0 16px 0;
+}
+
+.score-graph {
+  min-height: 300px;
+}
+
+.graph-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 300px;
+  color: #6366f1;
+}
+
+/* Empty State */
+.empty-state {
+  text-align: center;
+  padding: 80px 20px;
+  background: #161b22;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 16px;
+}
+
+.empty-icon {
+  width: 80px;
+  height: 80px;
+  margin: 0 auto 24px;
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.empty-icon i {
+  font-size: 2rem;
+  color: #4a5568;
+}
+
+.empty-state h3 {
+  font-family: 'Inter', sans-serif;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #8892a0;
+  margin-bottom: 8px;
+}
+
+.empty-state p {
+  font-size: 0.9rem;
+  color: #6b7280;
+  margin-bottom: 24px;
+}
+
+.empty-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 24px;
+  background: #6366f1;
+  border-radius: 8px;
+  font-weight: 600;
+  color: #fff;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.empty-cta:hover {
+  background: #4f46e5;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+  color: #fff;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .profile-header {
+    padding: 30px 0;
+  }
+  
+  .profile-main {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+  
+  .profile-avatar {
+    width: 80px;
+    height: 80px;
+    font-size: 32px;
+  }
+  
+  .profile-name-row {
+    justify-content: center;
+  }
+  
+  .profile-name-row h1 {
+    font-size: 1.5rem;
+  }
+  
+  .profile-badges {
+    justify-content: center;
+  }
+  
+  .captain-actions {
+    justify-content: center;
+  }
+  
+  .profile-stats {
+    margin-left: 0;
+    margin-top: 20px;
+    width: 100%;
+    justify-content: center;
+  }
+  
+  .stat-card {
+    flex: 1;
+    min-width: auto;
+  }
+  
+  .section-block {
+    padding: 20px;
+  }
+  
+  .members-grid {
+    grid-template-columns: 1fr;
+  }
+}
+</style>
+{% endblock %}
+
+{% block scripts %}
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/blueimp-md5/2.19.0/js/md5.min.js"></script>
+  
+  <script>
+    window.stats_data = {{ {
+      'type': 'team',
+      'id': team.id,
+      'name': team.name,
+      'account_id': 'me',
+    } | tojson }};
+
+    window.team_captain = {{ (user.id == team.captain_id) | tojson }};
+  </script>
+  {{ Assets.js("assets/js/teams/private.js") }}
+{% endblock %}
