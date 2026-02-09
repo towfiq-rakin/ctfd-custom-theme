@@ -4,7 +4,7 @@ import Alpine from "alpinejs";
 Alpine.data("LanguageForm", () => ({
   async set(event) {
     let language = event.target.getAttribute("value");
-    document.cookie = `language=${language};SameSite=Lax`;
+    document.cookie = `language=${language};SameSite=Lax;Secure`;
 
     if (CTFd.user.id) {
       await CTFd.fetch("/api/v1/users/me", {

@@ -90,7 +90,7 @@
             {% set conn = challenge.connection_info %}
             {% if not conn %}
             {% elif conn.startswith("http") %}
-              <a href="{{ conn }}" target="_blank">{{ conn }}</a>
+              <a href="{{ conn }}" target="_blank" rel="noopener noreferrer">{{ conn }}</a>
             {% else %}
               <code>{{ conn }}</code>
             {% endif %}
@@ -261,11 +261,9 @@
 </div>
 
 <style>
-/* ========================================
-   Challenge Modal - Minimalist Elegant Design
-   ======================================== */
 
-/* Category Color Variables */
+
+
 .challenge-modal {
   --modal-accent: #20c997;
   --modal-accent-rgb: 32, 201, 151;
@@ -314,7 +312,7 @@
   --modal-accent-rgb: 132, 204, 22;
 }
 
-/* Modal Container */
+
 .challenge-modal {
   background: #0d0d12;
   border: 1px solid rgba(var(--modal-accent-rgb), 0.3);
@@ -324,7 +322,7 @@
   transition: all 0.4s ease;
 }
 
-/* Submit Animation States */
+
 .challenge-modal.submit-pending {
   animation: borderPulse 1.5s ease-in-out infinite;
 }
@@ -372,7 +370,7 @@
   80% { transform: translateX(5px); }
 }
 
-/* Modal Header */
+
 .challenge-modal-header {
   display: flex;
   justify-content: space-between;
@@ -452,14 +450,14 @@
   color: #fff;
 }
 
-/* Accent Line */
+
 .challenge-accent-line {
   height: 2px;
   background: linear-gradient(90deg, var(--modal-accent) 0%, rgba(var(--modal-accent-rgb), 0.2) 50%, transparent 100%);
   margin: 0 24px;
 }
 
-/* Modal Body */
+
 .challenge-modal-body {
   padding: 24px;
 }
@@ -514,7 +512,7 @@
   overflow-x: auto;
 }
 
-/* Connection Info */
+
 .challenge-connection {
   background: rgba(255, 255, 255, 0.03);
   border: 1px solid rgba(255, 255, 255, 0.08);
@@ -543,7 +541,7 @@
   border-radius: 4px;
 }
 
-/* Files Section */
+
 .challenge-files-section {
   margin-bottom: 16px;
 }
@@ -585,7 +583,7 @@
   color: var(--modal-accent);
 }
 
-/* Hints Section */
+
 .challenge-hints-section {
   margin-bottom: 16px;
 }
@@ -630,7 +628,7 @@
   font-size: 0.9rem;
 }
 
-/* Attempts */
+
 .challenge-attempts {
   display: flex;
   align-items: baseline;
@@ -645,7 +643,7 @@
   color: var(--modal-accent);
 }
 
-/* Submit Section */
+
 .challenge-submit-section {
   padding: 0 24px 24px;
   display: flex;
@@ -708,7 +706,7 @@
   align-items: center;
 }
 
-/* Response Section */
+
 .challenge-response-section {
   padding: 0 24px;
 }
@@ -772,7 +770,7 @@
   background: rgba(255, 255, 255, 0.15);
 }
 
-/* Solves Section */
+
 .challenge-solves-section {
   position: absolute;
   top: 0;
@@ -850,7 +848,7 @@
   color: #666;
 }
 
-/* Footer */
+
 .challenge-modal-footer {
   padding: 16px 24px;
   border-top: 1px solid rgba(255, 255, 255, 0.08);
@@ -879,14 +877,14 @@
   border-color: rgba(var(--modal-accent-rgb), 0.3);
 }
 
-/* Hide old Bootstrap styles */
+
 .challenge-modal .modal-body,
 .challenge-modal .modal-header,
 .challenge-modal .modal-footer {
   display: none !important;
 }
 
-/* Responsive */
+
 @media (max-width: 576px) {
   .challenge-submit-section {
     flex-direction: column;
@@ -905,5 +903,117 @@
     margin-left: 0;
     margin-top: 12px;
   }
+}
+
+
+[data-bs-theme="light"] .challenge-modal {
+  background: #ffffff;
+  border-color: rgba(var(--modal-accent-rgb), 0.25);
+}
+
+[data-bs-theme="light"] .challenge-modal-header {
+  background: linear-gradient(180deg, rgba(var(--modal-accent-rgb), 0.06) 0%, transparent 100%);
+}
+
+[data-bs-theme="light"] .challenge-title {
+  color: #1a1a2e;
+}
+
+[data-bs-theme="light"] .challenge-number {
+  color: #1a1a2e;
+}
+
+[data-bs-theme="light"] .challenge-description {
+  color: #555;
+}
+
+[data-bs-theme="light"] .challenge-description pre {
+  background: #f6f8fa;
+  border-color: rgba(0, 0, 0, 0.1);
+}
+
+[data-bs-theme="light"] .challenge-connection {
+  background: rgba(0, 0, 0, 0.02);
+  border-color: rgba(0, 0, 0, 0.08);
+}
+
+[data-bs-theme="light"] .hint-details {
+  background: rgba(0, 0, 0, 0.02);
+  border-color: rgba(0, 0, 0, 0.08);
+}
+
+[data-bs-theme="light"] .hint-content {
+  border-top-color: rgba(0, 0, 0, 0.08);
+  color: #555;
+}
+
+[data-bs-theme="light"] .challenge-input-minimal {
+  background: #f6f8fa;
+  border-color: rgba(0, 0, 0, 0.15);
+  color: #1a1a2e;
+}
+
+[data-bs-theme="light"] .challenge-input-minimal::placeholder {
+  color: #999;
+}
+
+[data-bs-theme="light"] .challenge-close-btn {
+  border-color: rgba(0, 0, 0, 0.1);
+  background: rgba(0, 0, 0, 0.03);
+  color: #666;
+}
+
+[data-bs-theme="light"] .challenge-close-btn:hover {
+  background: rgba(0, 0, 0, 0.08);
+  color: #333;
+}
+
+[data-bs-theme="light"] .challenge-modal-footer {
+  border-top-color: rgba(0, 0, 0, 0.08);
+}
+
+[data-bs-theme="light"] .solves-toggle-btn {
+  border-color: rgba(0, 0, 0, 0.1);
+  color: #666;
+}
+
+[data-bs-theme="light"] .solves-toggle-btn:hover {
+  background: rgba(0, 0, 0, 0.03);
+}
+
+[data-bs-theme="light"] .challenge-solves-section {
+  background: #ffffff;
+}
+
+[data-bs-theme="light"] .solves-header {
+  border-bottom-color: rgba(0, 0, 0, 0.1);
+}
+
+[data-bs-theme="light"] .solves-close-btn {
+  border-color: rgba(0, 0, 0, 0.1);
+  color: #666;
+}
+
+[data-bs-theme="light"] .solves-close-btn:hover {
+  background: rgba(0, 0, 0, 0.06);
+  color: #333;
+}
+
+[data-bs-theme="light"] .solve-item {
+  border-bottom-color: rgba(0, 0, 0, 0.06);
+}
+
+[data-bs-theme="light"] .solve-date {
+  color: #999;
+}
+
+[data-bs-theme="light"] .next-challenge-btn {
+  background: rgba(0, 0, 0, 0.06);
+  border-color: rgba(0, 0, 0, 0.12);
+  color: #333;
+}
+
+[data-bs-theme="light"] .next-challenge-btn:hover {
+  background: rgba(0, 0, 0, 0.1);
 }
 </style>

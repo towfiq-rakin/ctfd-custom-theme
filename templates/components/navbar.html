@@ -20,7 +20,7 @@
       <i class="fas fa-bars text-primary"></i>
     </button>
 
-    <div class="navbar-collapse" id="base-navbars" data-bs-collapse="true">
+    <div class="collapse navbar-collapse" id="base-navbars">
       <ul class="navbar-nav me-auto">
         {% for page in Plugins.user_menu_pages %}
           <li class="nav-item">
@@ -110,7 +110,7 @@
           <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle px-3 py-2 rounded-pill fw-500 d-flex align-items-center" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
               <i class="fas fa-user-circle me-1 nav-icon"></i>
-              <span class="nav-label d-none d-md-inline">{{ User.name }}</span>
+              <span class="nav-label">{{ User.name }}</span>
             </a>
             <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0 rounded-3 mt-2 dropdown-menu-scroll" aria-labelledby="userDropdown">
               <li>
@@ -188,14 +188,7 @@
 
 <script>
 (function() {
-  const isFirefox = navigator.userAgent.toLowerCase().indexOf('firefox') > -1;
   const navbarCollapse = document.getElementById('base-navbars');
-  
-  if (isFirefox) {
-    navbarCollapse.classList.remove('collapse');
-  } else {
-    navbarCollapse.classList.add('collapse');
-  }
 
   function positionDropdown(event) {
     const dropdownToggle = event.target.closest('.dropdown-toggle');
@@ -204,12 +197,10 @@
     const dropdownMenu = dropdownToggle.parentElement.querySelector('.dropdown-menu');
     if (!dropdownMenu || !dropdownMenu.classList.contains('dropdown-menu')) return;
 
-    // Only apply in sidebar layout (desktop)
     if (window.innerWidth < 768) return;
 
     const toggleRect = dropdownToggle.getBoundingClientRect();
 
-    // Align bottom of menu with bottom of icon
     const bottomPosition = window.innerHeight - toggleRect.bottom;
 
     dropdownMenu.style.top = 'auto';
@@ -217,7 +208,18 @@
     dropdownMenu.style.transform = 'none';
   }
 
-  // Handle on click for user dropdown
+  function resetDropdownOnMobile() {
+    if (window.innerWidth < 768) {
+      document.querySelectorAll('.navbar.sidebar-nav .dropdown-menu').forEach(function(menu) {
+        menu.style.top = '';
+        menu.style.bottom = '';
+        menu.style.transform = '';
+        menu.style.position = '';
+        menu.style.left = '';
+      });
+    }
+  }
+
   document.querySelectorAll('.navbar.sidebar-nav .dropdown-toggle').forEach(function(toggle) {
     toggle.addEventListener('click', function(event) {
       setTimeout(function() {
@@ -226,7 +228,19 @@
     });
   });
 
-  // Initialize tooltips for sidebar icons
+  document.querySelectorAll('#base-navbars .nav-link:not(.dropdown-toggle)').forEach(function(link) {
+    link.addEventListener('click', function() {
+      if (window.innerWidth < 768 && navbarCollapse.classList.contains('show')) {
+        var bsCollapse = bootstrap.Collapse.getInstance(navbarCollapse);
+        if (bsCollapse) bsCollapse.hide();
+      }
+    });
+  });
+
+  window.addEventListener('resize', function() {
+    resetDropdownOnMobile();
+  });
+
   if (window.bootstrap) {
     var tooltipTriggerList = [].slice.call(
       document.querySelectorAll('.navbar.sidebar-nav [data-bs-toggle="tooltip"]')

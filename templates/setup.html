@@ -243,7 +243,7 @@
 						<div class="mb-3">
 							<b>{{ form.ctf_logo.label }}</b>
 							<div class="row">
-								{{ form.ctf_logo(class="form-control-file", accept="image/*", **{'@change': 'validateFileSize($event, 128000)'}) }}
+								{{ form.ctf_logo(class="form-control-file", accept="image", **{'@change': 'validateFileSize($event, 128000)'}) }}
 								<small class="form-text text-muted">
 									{{ form.ctf_logo.description }}
 								</small>
@@ -252,7 +252,7 @@
 						<div class="mb-3">
 							<b>{{ form.ctf_banner.label }}</b>
 							<div class="row">
-								{{ form.ctf_banner(class="form-control-file", accept="image/*", **{'@change': 'validateFileSize($event, 512000)'}) }}
+								{{ form.ctf_banner(class="form-control-file", accept="image", **{'@change': 'validateFileSize($event, 512000)'}) }}
 								<small class="form-text text-muted">
 									{{ form.ctf_banner.description }}
 								</small>

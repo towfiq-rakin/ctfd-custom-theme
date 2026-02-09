@@ -271,7 +271,7 @@
                 </table>
                 <tfoot>
                   <tr>
-                    <td :colspan="4 + sortedChallenges.length" class="py-3" style="background-color: var(--dark-card);">
+                    <td :colspan="4 + sortedChallenges.length" class="py-3" class="pagination-footer-cell">
                       <div class="pagination-controls d-flex justify-content-end align-items-center gap-2" style="padding-right: 16px;">
                         <button 
                           class="pagination-btn" 
@@ -329,19 +329,19 @@
   </div>
 
   <style>
-    /* Scoreboard specific styles */
+    
     .min-vh-25 {
       min-height: 25vh;
       max-height: 400px;
     }
     
-    /* Score Progression Chart */
+    
     #score-graph {
       height: 400px;
       max-height: 400px;
     }
     
-    /* Team Search Styling */
+    
     .team-search-wrapper {
       flex-shrink: 0;
     }
@@ -391,7 +391,7 @@
       box-shadow: 0 0 0 3px rgba(32, 201, 151, 0.15);
     }
     
-    /* Dark mode for search */
+    
     [data-bs-theme="dark"] .team-search-icon {
       color: var(--dark-muted);
     }
@@ -437,12 +437,12 @@
       color: #000;
     }
 
-    /* Dark mode adjustments */
+    
     [data-bs-theme="dark"] .hero-stats {
       background: rgba(28, 28, 30, 0.6);
     }
 
-    /* Blood Icons - Hexagon Style */
+    
     .blood-icon {
       width: 24px;
       height: 24px;
@@ -473,7 +473,7 @@
       font-size: 0.85rem;
     }
     
-    /* Category Badge in Header */
+    
     .category-badge {
       padding: 8px 16px;
       border-radius: 4px;
@@ -498,7 +498,7 @@
       color: var(--wmctf-primary);
     }
     
-    /* Category Row */
+    
     .category-row {
       display: table-row !important;
     }
@@ -529,7 +529,7 @@
       opacity: 0.9;
     }
     
-    /* Challenge Name Row */
+    
     .challenge-name-row {
       display: table-row !important;
     }
@@ -547,7 +547,7 @@
       width: 120px;
     }
     
-    /* Challenge Points Row */
+    
     .challenge-row {
       display: table-row !important;
     }
@@ -565,7 +565,7 @@
       width: 120px;
     }
 
-    /* Challenge Matrix Styles */
+    
     .challenge-matrix {
       font-size: 0.85rem;
       border-radius: 0 !important;
@@ -598,7 +598,7 @@
       -webkit-overflow-scrolling: touch;
     }
     
-    /* Custom scrollbar for horizontal scroll */
+    
     .table-responsive::-webkit-scrollbar {
       height: 8px;
     }
@@ -625,7 +625,7 @@
       background: var(--dark-card) !important;
     }
 
-    /* Header row */
+    
     .header-row {
       background: var(--dark-card) !important;
     }
@@ -645,7 +645,7 @@
       border: none !important;
     }
     
-    /* Ensure empty cells have same width as header cells */
+    
     .category-row .col-total,
     .category-row .col-rank,
     .category-row .col-team,
@@ -659,7 +659,7 @@
       width: inherit;
     }
 
-    /* Fixed columns - 40% total */
+    
     .challenge-matrix .col-total {
       width: 55px;
       min-width: 55px;
@@ -693,7 +693,7 @@
       border-bottom: 1px solid var(--dark-border);
     }
     
-    /* Stack sticky columns properly */
+    
     .challenge-matrix .col-total.sticky-left {
       left: 0;
       z-index: 14;
@@ -711,7 +711,7 @@
       box-shadow: 2px 0 8px rgba(0, 0, 0, 0.15);
     }
     
-    /* Header sticky columns background */
+    
     .category-row .sticky-left,
     .challenge-name-row .sticky-left,
     .challenge-row .sticky-left {
@@ -729,7 +729,7 @@
       width: 120px;
     }
     
-    /* Challenge columns - fixed width for alignment */
+    
     .col-challenge {
       min-width: 120px;
       width: 120px;
@@ -762,7 +762,7 @@
       font-weight: 700;
     }
 
-    /* Scoreboard Row */
+    
     .scoreboard-row {
       transition: all 0.2s ease;
       height: 48px;
@@ -784,7 +784,7 @@
       background: rgba(255, 255, 255, 0.03) !important;
     }
     
-    /* Empty rows - no hover effect */
+    
     .scoreboard-row.empty-row,
     .scoreboard-row.empty-row td {
       background: var(--dark-card) !important;
@@ -795,19 +795,19 @@
       background: var(--dark-card) !important;
     }
     
-    /* Only highlight cells with solve data on hover */
+    
     .scoreboard-row:hover .solved-cell {
       background: rgba(32, 201, 151, 0.1) !important;
     }
     
-    /* Blood icons in table */
+    
     .challenge-cell .blood-icon {
       width: 22px;
       height: 22px;
       margin: 0 auto;
     }
     
-    /* Tooltip styles */
+    
     .solve-tooltip {
       position: absolute;
       bottom: 100%;
@@ -859,7 +859,16 @@
       display: none !important;
     }
 
-    /* Pagination Styles */
+    
+    .pagination-footer-cell {
+      background-color: var(--light-card);
+    }
+
+    [data-bs-theme="dark"] .pagination-footer-cell {
+      background-color: var(--dark-card);
+    }
+
+    
     .pagination-controls {
       padding: 6px 0;
     }
@@ -911,7 +920,7 @@
       color: #000;
     }
 
-    /* Dark mode adjustments */
+    
     [data-bs-theme="dark"] .card {
       background: var(--dark-card) !important;
       border-color: var(--dark-border) !important;
@@ -926,11 +935,134 @@
       color: var(--dark-text) !important;
     }
 
-    /* Responsive adjustments */
+    
     @media (max-width: 768px) {
       .hero-stats {
         display: none;
       }
+    }
+
+    
+    [data-bs-theme="light"] .team-name {
+      color: var(--light-text);
+    }
+
+    [data-bs-theme="light"] .challenge-name {
+      color: var(--light-text);
+    }
+
+    [data-bs-theme="light"] .category-row .sticky-left {
+      background: var(--light-card) !important;
+    }
+
+    [data-bs-theme="light"] .challenge-name-row th {
+      background: var(--light-card) !important;
+    }
+
+    [data-bs-theme="light"] .challenge-row th {
+      background: var(--light-card) !important;
+      border-bottom-color: var(--light-border) !important;
+    }
+
+    [data-bs-theme="light"] .header-cell {
+      color: var(--light-text) !important;
+      background: var(--light-card) !important;
+      border-bottom-color: var(--light-border) !important;
+    }
+
+    [data-bs-theme="light"] .header-cell-empty {
+      background: var(--light-card) !important;
+    }
+
+    [data-bs-theme="light"] .challenge-matrix {
+      background: var(--light-card) !important;
+    }
+
+    [data-bs-theme="light"] .challenge-matrix thead,
+    [data-bs-theme="light"] .challenge-matrix tbody {
+      background: var(--light-card) !important;
+    }
+
+    [data-bs-theme="light"] .challenge-matrix .table-responsive {
+      background: var(--light-card) !important;
+    }
+
+    [data-bs-theme="light"] .challenge-matrix .sticky-left {
+      background: var(--light-card) !important;
+      border-bottom-color: var(--light-border);
+    }
+
+    [data-bs-theme="light"] .category-row .sticky-left,
+    [data-bs-theme="light"] .challenge-name-row .sticky-left,
+    [data-bs-theme="light"] .challenge-row .sticky-left {
+      background: var(--light-card) !important;
+    }
+
+    [data-bs-theme="light"] .challenge-header {
+      background: var(--light-card) !important;
+      color: var(--light-text) !important;
+      border-bottom-color: var(--light-border);
+    }
+
+    [data-bs-theme="light"] .challenge-cell {
+      border-bottom-color: var(--light-border);
+      background: var(--light-card) !important;
+    }
+
+    [data-bs-theme="light"] .scoreboard-row {
+      background: var(--light-card) !important;
+    }
+
+    [data-bs-theme="light"] .scoreboard-row td {
+      border-bottom-color: var(--light-border);
+      background: var(--light-card) !important;
+    }
+
+    [data-bs-theme="light"] .scoreboard-row:not(.empty-row):hover,
+    [data-bs-theme="light"] .scoreboard-row:not(.empty-row):hover td {
+      background: rgba(0, 0, 0, 0.03) !important;
+    }
+
+    [data-bs-theme="light"] .scoreboard-row.empty-row,
+    [data-bs-theme="light"] .scoreboard-row.empty-row td {
+      background: var(--light-card) !important;
+    }
+
+    [data-bs-theme="light"] .scoreboard-row:hover .solved-cell {
+      background: rgba(32, 201, 151, 0.08) !important;
+    }
+
+    [data-bs-theme="light"] .table-responsive::-webkit-scrollbar-track {
+      background: var(--light-surface);
+    }
+
+    [data-bs-theme="light"] .table-responsive::-webkit-scrollbar-thumb {
+      background: var(--light-border);
+    }
+
+    [data-bs-theme="light"] .table-responsive::-webkit-scrollbar-thumb:hover {
+      background: var(--light-muted);
+    }
+
+    [data-bs-theme="light"] .solve-tooltip-content {
+      background: #ffffff;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+    }
+
+    [data-bs-theme="light"] .solve-tooltip-name {
+      color: #1a1a2e;
+    }
+
+    [data-bs-theme="light"] .card-header[style*="var(--dark-card)"] {
+      background: var(--light-card) !important;
+    }
+
+    [data-bs-theme="light"] h5[style*="var(--dark-text)"] {
+      color: var(--light-text) !important;
+    }
+
+    [data-bs-theme="light"] .hero-stats {
+      background: rgba(0, 0, 0, 0.04);
     }
   </style>
 
@@ -954,7 +1086,7 @@
               }
             }
           } catch (error) {
-            console.log('Error loading top rankings:', error);
+            // Error loading top rankings silently handled
             this.topThree = [null, null, null];
           }
         },
@@ -1054,7 +1186,7 @@
             
             await this.loadSolveData();
           } catch (error) {
-            console.log('Error loading challenge data:', error);
+            // Error loading challenge data silently handled
           }
         },
         

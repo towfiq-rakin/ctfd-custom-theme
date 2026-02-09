@@ -117,8 +117,8 @@
         <div class="legal-text">
           {% trans trimmed privacy_link=Configs.privacy_link, tos_link=Configs.tos_link %}
           By registering, you agree to the
-          <a href="{{ privacy_link }}" target="_blank">privacy policy</a>
-          and <a href="{{ tos_link }}" target="_blank">terms of service</a>
+          <a href="{{ privacy_link }}" target="_blank" rel="noopener noreferrer">privacy policy</a>
+          and <a href="{{ tos_link }}" target="_blank" rel="noopener noreferrer">terms of service</a>
           {% endtrans %}
         </div>
         {% endif %}
@@ -129,11 +129,9 @@
 </div>
 
 <style>
-/* ========================================
-   Auth Pages - Modern Split Design
-   ======================================== */
 
-/* Hide default navbar and footer */
+
+
 .auth-page {
   position: fixed;
   top: 0;
@@ -152,7 +150,7 @@ body {
   display: none !important;
 }
 
-/* Left Side - Branding */
+
 .auth-branding {
   flex: 1;
   background: linear-gradient(135deg, #1a1f2e 0%, #0f1219 100%);
@@ -196,7 +194,7 @@ body {
   line-height: 1.6;
 }
 
-/* Decorative Wave */
+
 .brand-wave {
   position: absolute;
   top: 0;
@@ -227,7 +225,7 @@ body {
   );
 }
 
-/* Right Side - Form */
+
 .auth-form-section {
   flex: 1;
   background: #0d1117;
@@ -251,7 +249,7 @@ body {
   margin-bottom: 28px;
 }
 
-/* OAuth Button */
+
 .oauth-btn {
   display: flex;
   align-items: center;
@@ -276,7 +274,7 @@ body {
   color: #20c997;
 }
 
-/* Divider */
+
 .divider {
   display: flex;
   align-items: center;
@@ -297,7 +295,7 @@ body {
   padding: 0 16px;
 }
 
-/* Form Inputs */
+
 .form-group {
   margin-bottom: 16px;
 }
@@ -341,7 +339,7 @@ body {
   color: #6b7280;
 }
 
-/* Form Buttons */
+
 .form-buttons {
   margin-top: 24px;
 }
@@ -370,7 +368,7 @@ body {
   box-shadow: 0 4px 12px rgba(32, 201, 151, 0.3);
 }
 
-/* Form Footer */
+
 .form-footer {
   margin-top: 24px;
   text-align: center;
@@ -392,7 +390,7 @@ body {
   text-decoration: underline;
 }
 
-/* Legal Text */
+
 .legal-text {
   margin-top: 20px;
   text-align: center;
@@ -411,7 +409,7 @@ body {
   text-decoration: underline;
 }
 
-/* Error Messages */
+
 .auth-form-container .alert {
   margin-bottom: 20px;
   padding: 12px 16px;
@@ -419,7 +417,7 @@ body {
   font-size: 0.9rem;
 }
 
-/* Responsive */
+
 @media (max-width: 992px) {
   .auth-page {
     flex-direction: column;
@@ -463,6 +461,48 @@ body {
   .auth-form-section {
     padding: 30px 20px;
   }
+}
+
+
+[data-bs-theme="light"] .auth-branding {
+  background: linear-gradient(135deg, #e8f5f0 0%, #d4ede5 100%);
+}
+
+[data-bs-theme="light"] .brand-title {
+  color: #1a1a2e;
+}
+
+[data-bs-theme="light"] .brand-subtitle {
+  color: #666;
+}
+
+[data-bs-theme="light"] .auth-form-section {
+  background: #f6f8fa;
+}
+
+[data-bs-theme="light"] .form-title {
+  color: #1a1a2e;
+}
+
+[data-bs-theme="light"] .form-input {
+  background: #ffffff;
+  border-color: rgba(0, 0, 0, 0.12);
+  color: #1a1a2e;
+}
+
+[data-bs-theme="light"] .oauth-btn {
+  background: rgba(0, 0, 0, 0.03);
+  border-color: rgba(0, 0, 0, 0.1);
+  color: #333;
+}
+
+[data-bs-theme="light"] .divider {
+  color: #999;
+}
+
+[data-bs-theme="light"] .divider::before,
+[data-bs-theme="light"] .divider::after {
+  background: rgba(0, 0, 0, 0.1);
 }
 </style>
 {% endblock %}

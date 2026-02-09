@@ -63,7 +63,7 @@
         <div class="user-card" x-data="{ hasError: false }">
           <div class="user-avatar">
             <img 
-              :src="'https://www.gravatar.com/avatar/' + md5('{{ (user.email or user.name) | lower | trim }}') + '?s=100&d=identicon'"
+              src="https://www.gravatar.com/avatar/{{ (user.email or user.name) | gravatar_hash }}?s=100&d=identicon"
               alt="{{ user.name }}"
               @error="hasError = true"
               x-show="!hasError"
@@ -108,7 +108,7 @@
           
           <div class="user-actions">
             {% if user.website and (user.website.startswith('http://') or user.website.startswith('https://')) %}
-              <a href="{{ user.website }}" target="_blank" rel="noopener" class="action-link" title="{{ user.website }}">
+              <a href="{{ user.website }}" target="_blank" rel="noopener noreferrer" class="action-link" title="{{ user.website }}">
                 <i class="fas fa-globe"></i>
               </a>
             {% endif %}
@@ -165,9 +165,7 @@
 </div>
 
 <style>
-/* ========================================
-   Users Page - Modern Design
-   ======================================== */
+
 
 .users-page {
   min-height: calc(100vh - 150px);
@@ -178,9 +176,9 @@
   margin-top: 20px;
 }
 
-/* Jumbotron uses default theme styles */
 
-/* Search Section */
+
+
 .search-section {
   margin-bottom: 32px;
 }
@@ -285,7 +283,7 @@
   box-shadow: 0 4px 12px rgba(32, 201, 151, 0.3);
 }
 
-/* Users Grid */
+
 .users-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
@@ -426,7 +424,7 @@ a.user-name:hover {
   border-color: rgba(32, 201, 151, 0.3);
 }
 
-/* Empty State */
+
 .empty-state {
   text-align: center;
   padding: 80px 20px;
@@ -451,7 +449,7 @@ a.user-name:hover {
   font-size: 0.9rem;
 }
 
-/* Pagination */
+
 .pagination-section {
   margin-top: 40px;
   padding-top: 30px;
@@ -510,7 +508,32 @@ a.user-name:hover {
   border-color: #20c997;
 }
 
-/* Responsive */
+
+@media (max-width: 1200px) {
+  .users-page {
+    padding-bottom: 40px;
+  }
+
+  .users-grid {
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 14px;
+  }
+
+  .user-card {
+    padding: 16px;
+  }
+
+  .user-name-row {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .user-actions {
+    margin-left: auto;
+  }
+}
+
+
 @media (max-width: 768px) {
   
   .search-wrapper {
@@ -534,12 +557,80 @@ a.user-name:hover {
     gap: 15px;
   }
 }
+
+
+[data-bs-theme="light"] .search-results-info {
+  color: #333;
+}
+
+[data-bs-theme="light"] .search-select {
+  background: #ffffff;
+  border-color: rgba(0, 0, 0, 0.12);
+  color: #333;
+}
+
+[data-bs-theme="light"] .search-input {
+  background: #ffffff;
+  border-color: rgba(0, 0, 0, 0.12);
+  color: #1a1a2e;
+}
+
+[data-bs-theme="light"] .user-card {
+  background: #ffffff;
+  border-color: rgba(0, 0, 0, 0.08);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+}
+
+[data-bs-theme="light"] .user-card:hover {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+}
+
+[data-bs-theme="light"] .user-name {
+  color: #1a1a2e;
+}
+
+[data-bs-theme="light"] .action-link {
+  background: rgba(0, 0, 0, 0.04);
+  border-color: rgba(0, 0, 0, 0.1);
+  color: #666;
+}
+
+[data-bs-theme="light"] .action-link:hover {
+  background: rgba(0, 0, 0, 0.08);
+  color: #333;
+  border-color: rgba(0, 0, 0, 0.15);
+}
+
+[data-bs-theme="light"] .page-btn {
+  background: rgba(0, 0, 0, 0.03);
+  border-color: rgba(0, 0, 0, 0.1);
+  color: #333;
+}
+
+[data-bs-theme="light"] .page-btn:hover {
+  background: rgba(32, 201, 151, 0.08);
+}
+
+[data-bs-theme="light"] .page-select {
+  background: #ffffff;
+  border-color: rgba(0, 0, 0, 0.12);
+  color: #333;
+}
+
+[data-bs-theme="light"] .pagination-section {
+  border-top-color: rgba(0, 0, 0, 0.06);
+}
+
+[data-bs-theme="light"] .empty-state {
+  color: #777;
+}
+
+[data-bs-theme="light"] .empty-state h3 {
+  color: #555;
+}
 </style>
 {% endblock %}
 
 {% block scripts %}
-  
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/blueimp-md5/2.19.0/js/md5.min.js"></script>
-  
   {{ Assets.js("assets/js/users/list.js") }}
 {% endblock %}

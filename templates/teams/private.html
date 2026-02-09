@@ -201,12 +201,9 @@
   <div class="profile-header">
     <div class="container">
       <div class="profile-main">
-        <div class="profile-avatar team-avatar" x-data="{ 
-          gravatarUrl: 'https://www.gravatar.com/avatar/' + md5('{{ team.captain.email | lower | trim }}') + '?s=200&d=identicon',
-          hasError: false
-        }">
+        <div class="profile-avatar team-avatar" x-data="{ hasError: false }">
           <img 
-            :src="gravatarUrl" 
+            src="https://www.gravatar.com/avatar/{{ team.captain.email | gravatar_hash }}?s=200&d=identicon"
             alt="{{ team.name }}"
             @error="hasError = true"
             x-show="!hasError"
@@ -246,7 +243,7 @@
             {% endif %}
             
             {% if team.website and (team.website.startswith('http://') or team.website.startswith('https://')) %}
-              <a href="{{ team.website }}" target="_blank" rel="noopener" class="profile-badge profile-badge-link">
+              <a href="{{ team.website }}" target="_blank" rel="noopener noreferrer" class="profile-badge profile-badge-link">
                 <i class="fas fa-globe"></i>
                 Website
               </a>
@@ -322,7 +319,7 @@
           <a href="{{ url_for('users.public', user_id=member.id) }}" class="member-card" x-data="{ hasError: false }">
             <div class="member-avatar">
               <img 
-                :src="'https://www.gravatar.com/avatar/' + md5('{{ member.email | lower | trim }}') + '?s=88&d=identicon'"
+                src="https://www.gravatar.com/avatar/{{ member.email | gravatar_hash }}?s=88&d=identicon"
                 alt="{{ member.name }}"
                 @error="hasError = true"
                 x-show="!hasError"
@@ -495,16 +492,14 @@
 </div>
 
 <style>
-/* ========================================
-   Team Private Profile - Modern Design
-   ======================================== */
+
 
 .profile-page.team-profile {
   min-height: calc(100vh - 150px);
   padding-bottom: 60px;
 }
 
-/* Custom Modal Styles */
+
 .custom-modal {
   background: #161b22;
   border: 1px solid rgba(255, 255, 255, 0.1);
@@ -698,7 +693,7 @@
   margin-top: 8px;
 }
 
-/* Profile Header */
+
 .profile-header {
   background: linear-gradient(135deg, rgba(99, 102, 241, 0.08) 0%, rgba(99, 102, 241, 0.02) 100%);
   border-bottom: 1px solid rgba(99, 102, 241, 0.1);
@@ -824,7 +819,7 @@
   margin-top: 8px;
 }
 
-/* Captain Actions */
+
 .captain-actions {
   display: flex;
   gap: 10px;
@@ -864,7 +859,7 @@
   color: #ef4444;
 }
 
-/* Stats Cards */
+
 .profile-stats {
   display: flex;
   gap: 16px;
@@ -918,7 +913,7 @@
   letter-spacing: 0.5px;
 }
 
-/* Section Blocks */
+
 .section-block {
   background: #161b22;
   border: 1px solid rgba(255, 255, 255, 0.06);
@@ -960,7 +955,7 @@
   color: #818cf8;
 }
 
-/* Members Grid */
+
 .members-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
@@ -1033,7 +1028,7 @@
   color: #20c997;
 }
 
-/* Awards Grid */
+
 .awards-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
@@ -1096,7 +1091,7 @@
   margin-top: 8px;
 }
 
-/* Solves Table */
+
 .solves-table-wrapper {
   overflow-x: auto;
 }
@@ -1163,7 +1158,41 @@
   color: #8892a0;
 }
 
-/* Stats Grid */
+
+@media (max-width: 1200px) {
+  .profile-header {
+    padding: 40px 0;
+    margin-bottom: 32px;
+  }
+
+  .profile-main {
+    gap: 20px;
+  }
+
+  .profile-avatar {
+    width: 90px;
+    height: 90px;
+  }
+
+  .profile-name-row h1 {
+    font-size: 1.7rem;
+  }
+
+  .profile-stats {
+    flex-wrap: wrap;
+    justify-content: flex-start;
+  }
+
+  .stat-card {
+    padding: 16px 18px;
+  }
+
+  .section-block {
+    padding: 22px;
+  }
+}
+
+
 .stats-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
@@ -1244,7 +1273,7 @@
   background: #ef4444;
 }
 
-/* Graph Card */
+
 .graph-card {
   padding: 20px;
   background: rgba(255, 255, 255, 0.02);
@@ -1272,7 +1301,7 @@
   color: #6366f1;
 }
 
-/* Empty State */
+
 .empty-state {
   text-align: center;
   padding: 80px 20px;
@@ -1331,7 +1360,7 @@
   color: #fff;
 }
 
-/* Responsive */
+
 @media (max-width: 768px) {
   .profile-header {
     padding: 30px 0;
@@ -1385,12 +1414,261 @@
     grid-template-columns: 1fr;
   }
 }
+
+[data-bs-theme="light"] .custom-modal {
+  background: #ffffff;
+  border-color: rgba(0, 0, 0, 0.12);
+}
+
+[data-bs-theme="light"] .custom-modal .modal-header {
+  border-bottom-color: rgba(0, 0, 0, 0.08);
+}
+
+[data-bs-theme="light"] .custom-modal .modal-header h2 {
+  color: #1a1a2e;
+}
+
+[data-bs-theme="light"] .custom-modal .modal-footer {
+  border-top-color: rgba(0, 0, 0, 0.08);
+}
+
+[data-bs-theme="light"] .form-field label {
+  color: #333;
+}
+
+[data-bs-theme="light"] .form-field small {
+  color: #888;
+}
+
+[data-bs-theme="light"] .form-input {
+  background: #f6f8fa;
+  border-color: rgba(0, 0, 0, 0.12);
+  color: #1a1a2e;
+}
+
+[data-bs-theme="light"] .form-select {
+  background: #f6f8fa;
+  border-color: rgba(0, 0, 0, 0.12);
+  color: #1a1a2e;
+}
+
+[data-bs-theme="light"] .copy-btn {
+  background: rgba(99, 102, 241, 0.08);
+  border-color: rgba(99, 102, 241, 0.2);
+}
+
+[data-bs-theme="light"] .modal-cancel-btn {
+  background: rgba(0, 0, 0, 0.03);
+  border-color: rgba(0, 0, 0, 0.1);
+  color: #333;
+}
+
+[data-bs-theme="light"] .modal-cancel-btn:hover {
+  background: rgba(0, 0, 0, 0.06);
+}
+
+[data-bs-theme="light"] .disband-warning p {
+  color: #333;
+}
+
+[data-bs-theme="light"] .disband-warning .warning-sub {
+  color: #888;
+}
+
+[data-bs-theme="light"] .profile-header {
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.05) 0%, rgba(99, 102, 241, 0.01) 100%);
+  border-bottom-color: rgba(99, 102, 241, 0.08);
+}
+
+[data-bs-theme="light"] .profile-name-row h1 {
+  color: #1a1a2e;
+}
+
+[data-bs-theme="light"] .badge-private {
+  background: rgba(99, 102, 241, 0.08);
+  border-color: rgba(99, 102, 241, 0.15);
+}
+
+[data-bs-theme="light"] .profile-badge {
+  background: rgba(0, 0, 0, 0.03);
+  border-color: rgba(0, 0, 0, 0.08);
+  color: #555;
+}
+
+[data-bs-theme="light"] .profile-field {
+  color: #666;
+}
+
+[data-bs-theme="light"] .action-btn {
+  background: rgba(0, 0, 0, 0.03);
+  border-color: rgba(0, 0, 0, 0.1);
+  color: #666;
+}
+
+[data-bs-theme="light"] .action-btn:hover {
+  background: rgba(99, 102, 241, 0.08);
+  border-color: rgba(99, 102, 241, 0.2);
+  color: #6366f1;
+}
+
+[data-bs-theme="light"] .stat-card {
+  background: #ffffff;
+  border-color: rgba(0, 0, 0, 0.08);
+}
+
+[data-bs-theme="light"] .stat-card.stat-primary {
+  background: rgba(99, 102, 241, 0.04);
+  border-color: rgba(99, 102, 241, 0.15);
+}
+
+[data-bs-theme="light"] .stat-icon {
+  background: rgba(0, 0, 0, 0.04);
+  color: #666;
+}
+
+[data-bs-theme="light"] .stat-value {
+  color: #1a1a2e;
+}
+
+[data-bs-theme="light"] .stat-label {
+  color: #888;
+}
+
+[data-bs-theme="light"] .section-block {
+  background: #ffffff;
+  border-color: rgba(0, 0, 0, 0.08);
+}
+
+[data-bs-theme="light"] .section-header {
+  border-bottom-color: rgba(0, 0, 0, 0.06);
+}
+
+[data-bs-theme="light"] .section-header h2 {
+  color: #1a1a2e;
+}
+
+[data-bs-theme="light"] .member-card {
+  background: rgba(0, 0, 0, 0.02);
+  border-color: rgba(0, 0, 0, 0.06);
+}
+
+[data-bs-theme="light"] .member-card:hover {
+  border-color: rgba(99, 102, 241, 0.3);
+  background: rgba(99, 102, 241, 0.04);
+}
+
+[data-bs-theme="light"] .member-avatar {
+  background: rgba(99, 102, 241, 0.08);
+}
+
+[data-bs-theme="light"] .member-name {
+  color: #1a1a2e;
+}
+
+[data-bs-theme="light"] .award-card {
+  background: rgba(0, 0, 0, 0.02);
+  border-color: rgba(0, 0, 0, 0.06);
+}
+
+[data-bs-theme="light"] .award-card:hover {
+  border-color: rgba(99, 102, 241, 0.2);
+}
+
+[data-bs-theme="light"] .award-name {
+  color: #1a1a2e;
+}
+
+[data-bs-theme="light"] .award-category {
+  color: #888;
+}
+
+[data-bs-theme="light"] .award-desc {
+  color: #999;
+}
+
+[data-bs-theme="light"] .solves-table th {
+  color: #888;
+  border-bottom-color: rgba(0, 0, 0, 0.08);
+}
+
+[data-bs-theme="light"] .solves-table td {
+  border-bottom-color: rgba(0, 0, 0, 0.05);
+}
+
+[data-bs-theme="light"] .solves-table tr:hover {
+  background: rgba(0, 0, 0, 0.02);
+}
+
+[data-bs-theme="light"] .challenge-link {
+  color: #1a1a2e;
+}
+
+[data-bs-theme="light"] .challenge-link:hover {
+  color: #6366f1;
+}
+
+[data-bs-theme="light"] .solve-time {
+  color: #888;
+}
+
+[data-bs-theme="light"] .progress-card {
+  background: rgba(0, 0, 0, 0.02);
+  border-color: rgba(0, 0, 0, 0.06);
+}
+
+[data-bs-theme="light"] .progress-card h4 {
+  color: #333;
+}
+
+[data-bs-theme="light"] .custom-progress {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+[data-bs-theme="light"] .legend-item {
+  color: #666;
+}
+
+[data-bs-theme="light"] .graph-card {
+  background: rgba(0, 0, 0, 0.02);
+  border-color: rgba(0, 0, 0, 0.06);
+}
+
+[data-bs-theme="light"] .graph-card h4 {
+  color: #333;
+}
+
+[data-bs-theme="light"] .empty-state {
+  background: #ffffff;
+  border-color: rgba(0, 0, 0, 0.08);
+}
+
+[data-bs-theme="light"] .empty-icon {
+  background: rgba(0, 0, 0, 0.03);
+}
+
+[data-bs-theme="light"] .empty-icon i {
+  color: #bbb;
+}
+
+[data-bs-theme="light"] .empty-state h3 {
+  color: #555;
+}
+
+[data-bs-theme="light"] .empty-state p {
+  color: #999;
+}
+
+[data-bs-theme="light"] .empty-cta {
+  color: #fff;
+}
+
+[data-bs-theme="light"] .empty-cta:hover {
+  color: #fff;
+}
 </style>
 {% endblock %}
 
 {% block scripts %}
-  
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/blueimp-md5/2.19.0/js/md5.min.js"></script>
   
   <script>
     window.stats_data = {{ {

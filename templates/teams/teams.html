@@ -63,7 +63,7 @@
         <div class="team-card" x-data="{ hasError: false }">
           <div class="team-avatar">
             <img 
-              :src="'https://www.gravatar.com/avatar/' + md5('{{ team.captain.email | lower | trim }}') + '?s=100&d=identicon'"
+              src="https://www.gravatar.com/avatar/{{ team.captain.email | gravatar_hash }}?s=100&d=identicon"
               alt="{{ team.name }}"
               @error="hasError = true"
               x-show="!hasError"
@@ -108,7 +108,7 @@
           
           <div class="team-actions">
             {% if team.website and (team.website.startswith('http://') or team.website.startswith('https://')) %}
-              <a href="{{ team.website }}" target="_blank" rel="noopener" class="action-link" title="{{ team.website }}">
+              <a href="{{ team.website }}" target="_blank" rel="noopener noreferrer" class="action-link" title="{{ team.website }}">
                 <i class="fas fa-globe"></i>
               </a>
             {% endif %}
@@ -165,9 +165,7 @@
 </div>
 
 <style>
-/* ========================================
-   Teams Page - Modern Design
-   ======================================== */
+
 
 .teams-page {
   min-height: calc(100vh - 150px);
@@ -178,9 +176,9 @@
   margin-top: 20px;
 }
 
-/* Jumbotron uses default theme styles */
 
-/* Search Section */
+
+
 .search-section {
   margin-bottom: 32px;
 }
@@ -285,7 +283,7 @@
   box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
 }
 
-/* Teams Grid */
+
 .teams-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
@@ -426,7 +424,7 @@ a.team-name:hover {
   border-color: rgba(99, 102, 241, 0.3);
 }
 
-/* Empty State */
+
 .empty-state {
   text-align: center;
   padding: 80px 20px;
@@ -451,7 +449,7 @@ a.team-name:hover {
   font-size: 0.9rem;
 }
 
-/* Pagination */
+
 .pagination-section {
   margin-top: 40px;
   padding-top: 30px;
@@ -510,7 +508,32 @@ a.team-name:hover {
   border-color: #6366f1;
 }
 
-/* Responsive */
+
+@media (max-width: 1200px) {
+  .teams-page {
+    padding-bottom: 40px;
+  }
+
+  .teams-grid {
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 14px;
+  }
+
+  .team-card {
+    padding: 16px;
+  }
+
+  .team-name-row {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .team-actions {
+    margin-left: auto;
+  }
+}
+
+
 @media (max-width: 768px) {
   
   .search-wrapper {
@@ -534,12 +557,124 @@ a.team-name:hover {
     gap: 15px;
   }
 }
+
+[data-bs-theme="light"] .search-results-info {
+  background: rgba(99, 102, 241, 0.06);
+  border-color: rgba(99, 102, 241, 0.12);
+  color: #444;
+}
+
+[data-bs-theme="light"] .search-results-info .results-count {
+  color: #888;
+}
+
+[data-bs-theme="light"] .search-select {
+  background: #ffffff;
+  border-color: rgba(0, 0, 0, 0.12);
+  color: #333;
+}
+
+[data-bs-theme="light"] .search-input {
+  background: #ffffff;
+  border-color: rgba(0, 0, 0, 0.12);
+  color: #1a1a2e;
+}
+
+[data-bs-theme="light"] .search-input:focus {
+  border-color: #6366f1;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+[data-bs-theme="light"] .search-icon {
+  color: #999;
+}
+
+[data-bs-theme="light"] .team-card {
+  background: #ffffff;
+  border-color: rgba(0, 0, 0, 0.08);
+}
+
+[data-bs-theme="light"] .team-card:hover {
+  border-color: rgba(99, 102, 241, 0.3);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+}
+
+[data-bs-theme="light"] .team-avatar {
+  background: rgba(99, 102, 241, 0.08);
+}
+
+[data-bs-theme="light"] .team-name {
+  color: #1a1a2e;
+}
+
+[data-bs-theme="light"] a.team-name:hover {
+  color: #6366f1;
+}
+
+[data-bs-theme="light"] .meta-item {
+  color: #888;
+}
+
+[data-bs-theme="light"] .action-link {
+  background: rgba(0, 0, 0, 0.03);
+  border-color: rgba(0, 0, 0, 0.08);
+  color: #888;
+}
+
+[data-bs-theme="light"] .action-link:hover {
+  background: rgba(0, 0, 0, 0.06);
+  color: #333;
+  border-color: rgba(0, 0, 0, 0.15);
+}
+
+[data-bs-theme="light"] .action-link.action-primary {
+  background: rgba(99, 102, 241, 0.06);
+  border-color: rgba(99, 102, 241, 0.15);
+}
+
+[data-bs-theme="light"] .action-link.action-primary:hover {
+  background: rgba(99, 102, 241, 0.12);
+  border-color: rgba(99, 102, 241, 0.3);
+}
+
+[data-bs-theme="light"] .empty-state {
+  color: #999;
+}
+
+[data-bs-theme="light"] .empty-state h3 {
+  color: #555;
+}
+
+[data-bs-theme="light"] .pagination-section {
+  border-top-color: rgba(0, 0, 0, 0.06);
+}
+
+[data-bs-theme="light"] .page-btn {
+  background: rgba(0, 0, 0, 0.03);
+  border-color: rgba(0, 0, 0, 0.1);
+  color: #333;
+}
+
+[data-bs-theme="light"] .page-btn:hover {
+  background: rgba(99, 102, 241, 0.06);
+  border-color: rgba(99, 102, 241, 0.3);
+  color: #6366f1;
+}
+
+[data-bs-theme="light"] .page-selector {
+  color: #888;
+}
+
+[data-bs-theme="light"] .page-select {
+  background: #ffffff;
+  border-color: rgba(0, 0, 0, 0.1);
+  color: #333;
+}
 </style>
 {% endblock %}
 
 {% block scripts %}
-  
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/blueimp-md5/2.19.0/js/md5.min.js"></script>
+
   
   {{ Assets.js("assets/js/teams/list.js") }}
 {% endblock %}
