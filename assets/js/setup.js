@@ -1,6 +1,7 @@
 import Alpine from "alpinejs";
 import dayjs from "dayjs";
 import { Tab } from "bootstrap";
+import "./template_runtime/setup-state-bridge";
 
 import CTFd from "./index";
 

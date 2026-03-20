@@ -4,8 +4,7 @@
       {% if Configs.ctf_logo %}
         <img
             class="img-responsive ctf_logo me-2"
-            src="/themes/core-beta/static/img/fia.png"
-            alt="{{ Configs.ctf_name }}"
+            src="/files/{{ Configs.ctf_logo }}"
             style="height: 32px; max-height: 32px; width: auto; max-width: 120px; object-fit: contain; filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));"
         >
       {% endif %}
@@ -186,71 +185,3 @@
   </div>
 </nav>
 
-<script>
-(function() {
-  const navbarCollapse = document.getElementById('base-navbars');
-
-  function positionDropdown(event) {
-    const dropdownToggle = event.target.closest('.dropdown-toggle');
-    if (!dropdownToggle) return;
-
-    const dropdownMenu = dropdownToggle.parentElement.querySelector('.dropdown-menu');
-    if (!dropdownMenu || !dropdownMenu.classList.contains('dropdown-menu')) return;
-
-    if (window.innerWidth < 768) return;
-
-    const toggleRect = dropdownToggle.getBoundingClientRect();
-
-    const bottomPosition = window.innerHeight - toggleRect.bottom;
-
-    dropdownMenu.style.top = 'auto';
-    dropdownMenu.style.bottom = bottomPosition + 'px';
-    dropdownMenu.style.transform = 'none';
-  }
-
-  function resetDropdownOnMobile() {
-    if (window.innerWidth < 768) {
-      document.querySelectorAll('.navbar.sidebar-nav .dropdown-menu').forEach(function(menu) {
-        menu.style.top = '';
-        menu.style.bottom = '';
-        menu.style.transform = '';
-        menu.style.position = '';
-        menu.style.left = '';
-      });
-    }
-  }
-
-  document.querySelectorAll('.navbar.sidebar-nav .dropdown-toggle').forEach(function(toggle) {
-    toggle.addEventListener('click', function(event) {
-      setTimeout(function() {
-        positionDropdown(event);
-      }, 10);
-    });
-  });
-
-  document.querySelectorAll('#base-navbars .nav-link:not(.dropdown-toggle)').forEach(function(link) {
-    link.addEventListener('click', function() {
-      if (window.innerWidth < 768 && navbarCollapse.classList.contains('show')) {
-        var bsCollapse = bootstrap.Collapse.getInstance(navbarCollapse);
-        if (bsCollapse) bsCollapse.hide();
-      }
-    });
-  });
-
-  window.addEventListener('resize', function() {
-    resetDropdownOnMobile();
-  });
-
-  if (window.bootstrap) {
-    var tooltipTriggerList = [].slice.call(
-      document.querySelectorAll('.navbar.sidebar-nav [data-bs-toggle="tooltip"]')
-    );
-    tooltipTriggerList.map(function (tooltipTriggerEl) {
-      return new bootstrap.Tooltip(tooltipTriggerEl, {
-        trigger: 'hover focus',
-        placement: 'right'
-      });
-    });
-  }
-})();
-</script>

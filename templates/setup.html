@@ -2,20 +2,6 @@
 
 {% block stylesheets %}
 {{ super() }}
-<style>
-.card-radio:checked + .card {
-	background-color: transparent !important;
-	border-color: #a3d39c;
-	box-shadow: 0 0 0 0.1rem #a3d39c;
-	transition: background-color 0.3s, border-color 0.3s;
-}
-.card-radio:checked + .card .card-radio-clone{
-	visibility: visible !important;
-}
-.card:hover {
-	cursor: pointer;
-}
-</style>
 {% endblock %}
 
 {% block content %}
@@ -379,12 +365,10 @@
 			{% endwith %}
 		</div>
 	</div>
+	<template id="setup-config">{{ {'state': state} | tojson }}</template>
 
 {% endblock %}
 
 {% block scripts %}
-<script>
-	var STATE = {{ state | tojson }};
-</script>
 {{ Assets.js("assets/js/setup.js") }}
 {% endblock %}

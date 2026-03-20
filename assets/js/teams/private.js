@@ -1,14 +1,17 @@
 import Alpine from "alpinejs";
 import CTFd from "../index";
+import { registerCommonAlpineStates } from "../components/alpine-states";
 import { Modal } from "bootstrap";
 import { serializeJSON } from "@ctfdio/ctfd-js/forms";
 import { copyToClipboard } from "../utils/clipboard";
+import "../template_runtime/team-private-context";
 import { colorHash } from "@ctfdio/ctfd-js/ui";
 import { getOption as getUserScoreOption } from "../utils/graphs/echarts/userscore";
 import { embed } from "../utils/graphs/echarts";
 
 window.Alpine = Alpine;
 window.CTFd = CTFd;
+registerCommonAlpineStates(Alpine);
 
 Alpine.store("inviteToken", "");
 

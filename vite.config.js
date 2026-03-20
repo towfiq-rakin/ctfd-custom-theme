@@ -58,6 +58,11 @@ export default defineConfig({
       input: {
         index: resolve(__dirname, "assets/js/index.js"),
         page: resolve(__dirname, "assets/js/page.js"),
+        base_bootstrap: resolve(__dirname, "assets/js/base_bootstrap.js"),
+        theme_preload: resolve(__dirname, "assets/js/theme/preload.js"),
+        color_mode_switcher: resolve(__dirname, "assets/js/color_mode_switcher.js"),
+        navbar_component: resolve(__dirname, "assets/js/components/navbar.js"),
+        terminal_component: resolve(__dirname, "assets/js/components/terminal.js"),
         setup: resolve(__dirname, "assets/js/setup.js"),
         settings: resolve(__dirname, "assets/js/settings.js"),
         challenges: resolve(__dirname, "assets/js/challenges.js"),
@@ -70,6 +75,10 @@ export default defineConfig({
         users_private: resolve(__dirname, "assets/js/users/private.js"),
         users_list: resolve(__dirname, "assets/js/users/list.js"),
         main: resolve(__dirname, "assets/scss/main.scss"),
+        template_runtime_styles: resolve(
+          __dirname,
+          "assets/scss/template_runtime_styles.scss",
+        ),
       },
     },
   },

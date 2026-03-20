@@ -1,96 +1,140 @@
-# CTFd Core Beta Theme
+# ctfd-theme-modern
 
-A modern CTFd theme built with Bootstrap 5, Alpine.js, and Vite.
+Developer-focused modern CTFd theme built with Bootstrap 5, Alpine.js, and Vite.
 
-## Features
+This theme is inspired by [ctfd-wmctf2025-theme](https://github.com/wm-team/ctfd-wmctf2025-theme/)
 
-- Modern UI with Bootstrap 5
-- Alpine.js for reactive components
-- Vite for fast development and optimized builds
-- Dark mode support
-- Responsive design
-- ECharts integration for data visualization
+The goal of this repository is to keep page structure in Jinja templates while moving runtime behavior into `assets/js` (and styles into `assets/scss`) so builds remain fast and changes are easier to reason about.
 
-## Installation
+## Screenshots
 
-### Using Git Subtree
+![image](screenshot/Challenge.png)
 
-Add this theme to your CTFd installation:
+![image](screenshot/Challenges.png)
 
-```bash
-git subtree add --prefix CTFd/themes/core-beta git@github.com:CTFd/core-beta.git main --squash
-```
+![image](screenshot/Scoreboard.png)
 
-### Pull Latest Changes
+![image](screenshot/Terminal.png)
 
-```bash
-git subtree pull --prefix CTFd/themes/core-beta git@github.com:CTFd/core-beta.git main --squash
-```
 
-## Development
+## What's in this theme
+
+- Page runtime bundles (Vite inputs): `challenges`, `scoreboard`, `notifications`, `teams_*`, `users_*`, plus shared bootstraps like `base_bootstrap` and `theme_preload`
+- Alpine.js components for interactive page state (for example `ChallengesPage`, `ScoreboardList`, and related runtime components)
+- ECharts integration for the scoreboard graphs
+- SCSS styling with a shared runtime stylesheet: `assets/scss/template_runtime_styles.scss`
+- Fonts and icons:
+  - JetBrains Mono (loaded from Google Fonts in `templates/base.html`)
+  - Font Awesome (webfonts copied by Vite)
+
+## Technical Stack
+
+### Frontend
+- Bootstrap 5
+- Alpine.js (used for component state and Alpine `data` bindings)
+- Vite (build + hashed assets + `static/manifest.json`)
+- Sass/SCSS (theme styling)
+- ECharts (scoreboard visualization)
+
+### Fonts and Icons
+- JetBrains Mono
+- Font Awesome
+
+### Build Pipeline
+- Vite bundling and manifest output
+- SCSS compilation
+- Static asset copy pipeline
+
+## Responsive Design
+
+### Breakpoints
+- Mobile-first behavior
+- Tablet optimized layout
+- Desktop full-featured experience
+
+### Mobile Optimizations
+- Touch-friendly controls
+- Responsive cards and tables
+- Collapsible navigation behavior
+
+## Runtime integration (CTFd <-> frontend)
+
+- `templates/base.html` renders a JSON config payload inside `<template id="ctfd-init-data">`.
+- `assets/js/base_bootstrap.js` reads `ctfd-init-data` and exposes it as `window.init`.
+- `ctfd-init-data` includes: `urlRoot`, `csrfNonce`, `userMode`, `userId`, `userName`, `teamId`, `teamName`, `start`, `end`, `themeSettings`, and `eventSounds`.
+- Page templates include the correct Vite bundles via `{{ Assets.js("...") }}` and `{{ Assets.css("...") }}` (resolved through `static/manifest.json`).
+
+If a page is "stuck loading", check the browser console for JS errors and confirm the correct entry bundle is included for that route.
+
+## Installation and Development
 
 ### Prerequisites
+- Node.js 16+
+- npm (recommended for this repository)
+- A CTFd instance for runtime testing
 
-- Node.js (v16 or higher)
-- npm or yarn
+### Development Setup
 
-### Setup
+1. Install dependencies:
+   ```bash
+   npm install
+   ```
 
-```bash
-npm install
-```
+2. Development watch build:
+   ```bash
+   npm run dev
+   ```
 
-### Development Mode
+3. Production build:
+   ```bash
+   npm run build
+   ```
 
-Watch for changes and rebuild automatically:
+### File Structure
 
-```bash
-npm run dev
-```
-
-### Build
-
-Build for production:
-
-```bash
-npm run build
-```
-
-### Code Formatting
-
-Format code:
-
-```bash
-npm run format
-```
-
-### Linting
-
-Check code formatting:
-
-```bash
-npm run lint
-```
-
-## Project Structure
-
-```
+```text
 assets/
-  js/          # JavaScript source files
-  scss/         # SCSS stylesheets
-  img/          # Image assets
-templates/      # Jinja2 HTML templates
-static/         # Built assets (generated)
+├── img/              # Images and branding assets
+├── js/               # JavaScript modules
+│   ├── components/   # Shared components
+│   ├── template_runtime/
+│   └── utils/
+├── scss/             # Sass stylesheets
+│   ├── includes/
+│   └── main.scss
+templates/            # Jinja2 templates
+static/               # Compiled assets (generated)
 ```
 
-## Technologies
+### How to Use
+1. Copy this theme into your CTFd installation under `CTFd/themes/ctfd-theme-modern`.
+2. Run asset build inside the theme folder:
+   ```bash
+   npm install
+   npm run build
+   ```
+3. Select the theme in CTFd (Admin settings) and restart CTFd if needed.
 
-- **Bootstrap 5**: UI framework
-- **Alpine.js**: Lightweight JavaScript framework
-- **Vite**: Build tool and dev server
-- **ECharts**: Data visualization library
-- **Sass**: CSS preprocessor
+## Customization
+
+
+### Dark Mode
+- Supports dark and light themes
+- Automatic preference-aware switching
+- Consistent component-level theming
+
+## Performance
+
+### Optimization
+- Optimized production assets via Vite
+- Minified JS/CSS output
+- Efficient font and image loading strategy
+
+### Browser Support
+- Chrome, Firefox, Safari, Edge (modern versions)
+- Progressive enhancement for older environments
 
 ## License
 
-See LICENSE file for details.
+This project is licensed under Apache License 2.0. See [LICENSE](LICENSE) for details.
+

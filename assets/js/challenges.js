@@ -2,6 +2,8 @@ import Alpine from "alpinejs";
 import dayjs from "dayjs";
 
 import CTFd from "./index";
+import "./template_runtime/challenges-activity-feed";
+import { registerCommonAlpineStates } from "./components/alpine-states";
 
 import { Modal, Tab, Tooltip } from "bootstrap";
 import highlight from "./theme/highlight";
@@ -17,6 +19,7 @@ function addTargetBlank(html) {
 }
 
 window.Alpine = Alpine;
+registerCommonAlpineStates(Alpine);
 
 Alpine.store("challenge", {
   data: {
@@ -223,7 +226,7 @@ Alpine.data("Challenge", () => ({
   },
 }));
 
-Alpine.data("ChallengeBoard", () => ({
+const createChallengeBoard = () => ({
   loaded: false,
   challenges: [],
   challenge: null,
@@ -309,6 +312,114 @@ Alpine.data("ChallengeBoard", () => ({
       });
     });
   },
+});
+
+Alpine.data("ChallengeBoard", createChallengeBoard);
+
+const CHALLENGE_CATEGORY_ICONS = {
+  web: "fas fa-globe",
+  crypto: "fas fa-lock",
+  pwn: "fas fa-bug",
+  reverse: "fas fa-cogs",
+  forensics: "fas fa-search",
+  misc: "fas fa-puzzle-piece",
+  binary: "fas fa-file-code",
+  steganography: "fas fa-eye",
+  osint: "fas fa-satellite",
+  network: "fas fa-network-wired",
+  mobile: "fas fa-mobile-alt",
+  blockchain: "fas fa-link",
+  ai: "fas fa-robot",
+  iot: "fas fa-microchip",
+  hardware: "fas fa-microchip",
+  ppc: "fas fa-code",
+  pentest: "fas fa-user-secret",
+  redteam: "fas fa-user-secret",
+};
+
+const CHALLENGE_CATEGORY_COLORS = {
+  web: "#329af1",
+  crypto: "#845ef7",
+  pwn: "#ff6b6b",
+  reverse: "#fdc419",
+  forensics: "#5473e1",
+  misc: "#20c897",
+  binary: "#17a2b8",
+  osint: "#ff922b",
+  network: "#34C759",
+  mobile: "#f16594",
+  blockchain: "#50cf66",
+  hardware: "#d1d0d1",
+  ai: "#94d82c",
+  pentest: "#cd5de8",
+  redteam: "#cd5de8",
+  ppc: "#9C27B0",
+};
+
+Alpine.data("ChallengesPage", () => ({
+  ...createChallengeBoard(),
+  selectedCategory: null,
+  hideSolved: false,
+
+  filterChallenges() {
+    // Trigger Alpine update when hideSolved changes.
+  },
+
+  getVisibleChallenges(category) {
+    let challenges = this.getSortedChallenges(category);
+    if (this.hideSolved) {
+      challenges = challenges.filter(c => !c.solved_by_me);
+    }
+    return challenges;
+  },
+
+  getFilteredCategories() {
+    if (this.selectedCategory) {
+      return [this.selectedCategory];
+    }
+    return this.getCategories();
+  },
+
+  getTotalChallenges() {
+    if (!this.loaded || !this.challenges) return 0;
+    return this.challenges.length;
+  },
+
+  getCategoryIcon(category) {
+    const key = category.toLowerCase();
+    return CHALLENGE_CATEGORY_ICONS[key] || "fas fa-folder";
+  },
+
+  getCategoryColor(category) {
+    const key = category.toLowerCase();
+    return CHALLENGE_CATEGORY_COLORS[key] || "#329af1";
+  },
+
+  getCategoryBadgeStyle(category) {
+    const color = this.getCategoryColor(category);
+    return `background: ${color}20; color: ${color}; border: 1px solid ${color}40;`;
+  },
+
+  getDifficultyFromTags(tags) {
+    if (!tags || tags.length === 0) return "medium";
+    const tag = tags[0]?.value?.toLowerCase() || "";
+    if (tag.includes("easy")) return "easy";
+    if (tag.includes("hard")) return "hard";
+    return "medium";
+  },
+
+  getSortedChallenges(category) {
+    const challenges = this.getChallenges(category);
+    return challenges.sort((a, b) => a.value - b.value);
+  },
+}));
+
+Alpine.data("MatrixRain", () => ({
+  columns: Array.from({ length: 8 + Math.floor(Math.random() * 5) }, () => ({
+    left: (5 + Math.random() * 90).toFixed(1),
+    delay: (Math.random() * 3).toFixed(2),
+    speed: (2 + Math.random() * 2.5).toFixed(2),
+  })),
 }));
 
 Alpine.start();
