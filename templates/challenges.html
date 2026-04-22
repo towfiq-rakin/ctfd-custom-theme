@@ -333,4 +333,248 @@
 {% block scripts %}
   
   {{ Assets.js("assets/js/challenges.js") }}
+  <script>
+    (function () {
+      if (typeof window.container_request === "function") {
+        return;
+      }
+
+      function byId(id) {
+        return document.getElementById(id);
+      }
+
+      function setText(node, text) {
+        if (!node) return;
+        node.textContent = text;
+      }
+
+      function showError(message) {
+        var box = byId("container-request-error");
+        if (!box) return;
+        box.style.display = "";
+        var target = box.firstElementChild || box;
+        setText(target, message || "An error occurred");
+      }
+
+      function clearError() {
+        var box = byId("container-request-error");
+        if (!box) return;
+        box.style.display = "none";
+        var target = box.firstElementChild || box;
+        setText(target, "");
+      }
+
+      async function postJson(path, payload) {
+        var headers = {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        };
+
+        if (window.init && window.init.csrfNonce) {
+          headers["CSRF-Token"] = window.init.csrfNonce;
+        }
+
+        var response = await fetch(path, {
+          method: "POST",
+          headers: headers,
+          credentials: "same-origin",
+          body: JSON.stringify(payload),
+        });
+
+        try {
+          return await response.json();
+        } catch (_err) {
+          return { error: "Invalid server response" };
+        }
+      }
+
+      function renderSuccess(data) {
+        var requestButton = byId("container-request-btn");
+        var requestResult = byId("container-request-result");
+        var connectionInfo = byId("container-connection-info");
+        var containerExpires = byId("container-expires");
+        var containerExpiresTime = byId("container-expires-time");
+
+        clearError();
+
+        if (requestButton && requestButton.parentNode) {
+          requestButton.parentNode.removeChild(requestButton);
+        }
+
+        if (connectionInfo) {
+          if (data.hostname && String(data.hostname).startsWith("http")) {
+            connectionInfo.innerHTML =
+              '<a href="' +
+              data.hostname +
+              ":" +
+              data.port +
+              '" target="_blank">' +
+              data.hostname +
+              ":" +
+              data.port +
+              "</a>";
+          } else {
+            connectionInfo.textContent = (data.hostname || "") + " " + (data.port || "");
+          }
+        }
+
+        if (containerExpires && data.expires) {
+          var minutes = Math.ceil((new Date(data.expires * 1000) - new Date()) / 1000 / 60);
+          containerExpires.textContent = String(minutes);
+        }
+
+        if (containerExpiresTime) {
+          containerExpiresTime.style.display = "";
+        }
+
+        if (requestResult) {
+          requestResult.style.display = "";
+        }
+      }
+
+      window.container_running = async function (challengeId) {
+        try {
+          var data = await postJson("/containers/api/running", { chal_id: challengeId });
+
+          if (data && data.error !== undefined) {
+            showError(data.error);
+            return;
+          }
+          if (data && data.message !== undefined) {
+            showError(data.message);
+            return;
+          }
+
+          if (
+            data &&
+            data.status === "already_running" &&
+            String(data.container_id) === String(challengeId)
+          ) {
+            await window.container_request(challengeId);
+          }
+        } catch (_err) {
+          showError("Could not check instance status");
+        }
+      };
+
+      window.container_request = async function (challengeId) {
+        var requestButton = byId("container-request-btn");
+        if (requestButton) {
+          requestButton.setAttribute("disabled", "disabled");
+        }
+
+        try {
+          var data = await postJson("/containers/api/request", { chal_id: challengeId });
+
+          if (data && data.error !== undefined) {
+            showError(data.error);
+            if (requestButton) requestButton.removeAttribute("disabled");
+            return;
+          }
+          if (data && data.message !== undefined) {
+            showError(data.message);
+            if (requestButton) requestButton.removeAttribute("disabled");
+            return;
+          }
+
+          renderSuccess(data || {});
+        } catch (_err) {
+          showError("Could not start instance");
+          if (requestButton) requestButton.removeAttribute("disabled");
+        }
+      };
+
+      window.container_renew = async function (challengeId) {
+        var renewButton = byId("container-renew-btn");
+        var containerExpires = byId("container-expires");
+
+        if (renewButton) {
+          renewButton.setAttribute("disabled", "disabled");
+        }
+
+        try {
+          var data = await postJson("/containers/api/renew", { chal_id: challengeId });
+
+          if (data && data.error !== undefined) {
+            showError(data.error);
+          } else if (data && data.message !== undefined) {
+            showError(data.message);
+          } else {
+            clearError();
+            if (containerExpires && data.expires) {
+              var minutes = Math.ceil((new Date(data.expires * 1000) - new Date()) / 1000 / 60);
+              containerExpires.textContent = String(minutes);
+            }
+          }
+        } catch (_err) {
+          showError("Could not extend instance time");
+        } finally {
+          if (renewButton) {
+            renewButton.removeAttribute("disabled");
+          }
+        }
+      };
+
+      window.container_reset = async function (challengeId) {
+        var resetButton = byId("container-reset-btn");
+        if (resetButton) {
+          resetButton.setAttribute("disabled", "disabled");
+        }
+
+        try {
+          var data = await postJson("/containers/api/reset", { chal_id: challengeId });
+
+          if (data && data.error !== undefined) {
+            showError(data.error);
+          } else if (data && data.message !== undefined) {
+            showError(data.message);
+          } else {
+            renderSuccess(data || {});
+          }
+        } catch (_err) {
+          showError("Could not reset instance");
+        } finally {
+          if (resetButton) {
+            resetButton.removeAttribute("disabled");
+          }
+        }
+      };
+
+      window.container_stop = async function (challengeId) {
+        var stopButton = byId("container-stop-btn");
+        var requestResult = byId("container-request-result");
+        var containerExpiresTime = byId("container-expires-time");
+
+        if (stopButton) {
+          stopButton.setAttribute("disabled", "disabled");
+        }
+
+        try {
+          var data = await postJson("/containers/api/stop", { chal_id: challengeId });
+
+          if (data && data.error !== undefined) {
+            showError(data.error);
+            if (stopButton) stopButton.removeAttribute("disabled");
+            return;
+          }
+          if (data && data.message !== undefined) {
+            showError(data.message);
+            if (stopButton) stopButton.removeAttribute("disabled");
+            return;
+          }
+
+          clearError();
+          if (requestResult) {
+            requestResult.innerHTML = "Container stopped. <br>Reopen this challenge to start another.";
+          }
+          if (containerExpiresTime) {
+            containerExpiresTime.style.display = "none";
+          }
+        } catch (_err) {
+          showError("Could not stop instance");
+          if (stopButton) stopButton.removeAttribute("disabled");
+        }
+      };
+    })();
+  </script>
 {% endblock %}
