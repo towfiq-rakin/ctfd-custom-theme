@@ -55,7 +55,7 @@
   'start': Configs.start,
   'end': Configs.end,
   'ctfName': Configs.ctf_name,
-  'subtitle': (content if content else '')
+  'subtitle': (Configs.ctf_description if Configs.ctf_description else '')
 } | tojson }}</template>
 
 {% endblock %}
