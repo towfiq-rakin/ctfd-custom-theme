@@ -1,6 +1,17 @@
 window.CyberTerminal = (function() {
   const configNode = document.getElementById("terminal-config");
-  const config = configNode ? JSON.parse(configNode.textContent || "{}") : {};
+  const configRaw = configNode
+    ? (configNode.content && configNode.content.textContent) ||
+      configNode.innerHTML ||
+      configNode.textContent ||
+      "{}"
+    : "{}";
+  let config = {};
+  try {
+    config = JSON.parse(configRaw || "{}");
+  } catch (_e) {
+    config = {};
+  }
 
   const CTF_NAME = config.ctfName || "CTFd";
   const CTF_START = config.start ?? null;

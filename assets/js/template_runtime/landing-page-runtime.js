@@ -1,7 +1,17 @@
 (function() {
     var configNode = document.getElementById("landing-config");
     if (!configNode) return;
-    var config = JSON.parse(configNode.textContent || "{}");
+    var configRaw =
+      (configNode.content && configNode.content.textContent) ||
+      configNode.innerHTML ||
+      configNode.textContent ||
+      "{}";
+    var config = {};
+    try {
+      config = JSON.parse(configRaw || "{}");
+    } catch (_e) {
+      config = {};
+    }
     var CTF_START = config.start ?? null;
     var CTF_END = config.end ?? null;
     var CTF_NAME = config.ctfName || "";
@@ -75,6 +85,9 @@
       showElement(ctaButtons);
     }
 
+    /*
+    Terminal-gated reveal flow disabled intentionally.
+
     if (!window.CyberTerminal.hasBooted()) {
       window.CyberTerminal.open();
     }
@@ -99,6 +112,13 @@
       }
     } else if (hasTypedBefore) {
       showInstant();
+    }
+    */
+
+    if (hasTypedBefore) {
+      showInstant();
+    } else {
+      runTypingAnimation();
     }
       
     function updateCountdown() {
