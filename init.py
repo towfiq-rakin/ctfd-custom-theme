@@ -306,7 +306,7 @@ def init_request_processors(app):
     def tokens():
         token = request.headers.get("Authorization")
         if token and (
-            request.mimetype == "application/json"
+            request.is_json
             # Specially allow multipart/form-data for file uploads
             or (
                 request.endpoint == "api.files_files_list"
@@ -339,10 +339,10 @@ def init_request_processors(app):
         if not session.get("nonce"):
             session["nonce"] = generate_nonce()
         if request.method not in ("GET", "HEAD", "OPTIONS", "TRACE"):
-            if request.content_type == "application/json":
+            if request.is_json:
                 if session["nonce"] != request.headers.get("CSRF-Token"):
                     abort(403)
-            if request.content_type != "application/json":
+            else:
                 if session["nonce"] != request.form.get("nonce"):
                     abort(403)
 
