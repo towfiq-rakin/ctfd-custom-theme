@@ -86,15 +86,17 @@
           <span>Connection</span>
         </div>
         <div class="connection-value">
-          {% block connection_info %}
-            {% set conn = challenge.connection_info %}
-            {% if not conn %}
-            {% elif conn.startswith("http") %}
-              <a href="{{ conn }}" target="_blank" rel="noopener noreferrer">{{ conn }}</a>
-            {% else %}
-              <code>{{ conn }}</code>
-            {% endif %}
-          {% endblock %}
+          <span class="challenge-connection-info">
+            {% block connection_info %}
+              {% set conn = challenge.connection_info %}
+              {% if not conn %}
+              {% elif conn.startswith("http") %}
+                {{ conn | urlize(target="_blank") }}
+              {% else %}
+                <code>{{ conn }}</code>
+              {% endif %}
+            {% endblock %}
+          </span>
         </div>
       </div>
       {% endif %}
